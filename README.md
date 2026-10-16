@@ -8,3 +8,6 @@ A Digital Tracking System for Broken Institutional Equipment and Infrastructure.
 ## Tech Stack
 
 The website employs the following languages and frameworks:
+- ReactJS
+- PHP
+- MySQL
