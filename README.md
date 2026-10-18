@@ -1,9 +1,17 @@
 # EquiTrack
 
-EquiTrack is a digital tracking system for academic institutional equipment and infrastructure. It aims to serve as a bridge for communication for students, staff and the institution itself.
-A Digital Tracking System for Broken Institutional Equipment and Infrastructure. It aims to serve as a bridge for communication to both Students, Staffs, and the Academic Institution itself. Its scope revolves around the equipment and infrastructural devices around the University of San Carlos' Campus (USC-TC)
+EquiTrack is a digital tracking system for institutional equipment and infrastructure. It aims to serve as a bridge for communication for students, staff and the academic institution itself. Its scope revolves around the equipment and infrastructural devices around the University of San Carlos' Talamban Campus (USC-TC), located in Cebu, Philippines.
 
 ## Features
+
+Users can perform the following:
+- Submit a report of a damaged tool, facility, or infrastructure found within the campus
+- Describe the item being reported including its specific classroom and building, as well as type of damage
+- Search for listed equipment and infrastructure through categories (building, campus, type)
+
+Admins can perform the following:
+- Utilize the website as an organized list of equipment and facilities to repair
+- Mark reports as solved or fixed
 
 ## Tech Stack
 
