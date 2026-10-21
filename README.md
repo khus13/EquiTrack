@@ -19,3 +19,7 @@ The website employs the following languages and frameworks:
 - ReactJS
 - PHP
 - MySQL
+
+## Credits
+
+This project was created in fulfillment of the Web Development II (CIS 2102) course at the University of San Carlos. The
