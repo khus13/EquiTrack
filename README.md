@@ -22,4 +22,10 @@ The website employs the following languages and frameworks:
 
 ## Credits
 
-This project was created in fulfillment of the Web Development II (CIS 2102) course at the University of San Carlos. The
+This project was created in fulfillment of the requirements of the Web Development II (CIS 2102) course at the University of San Carlos. <br><br>
+
+The creators of EquiTrack include:
+- Andrea Keisha To Chip
+- Enoch Matugas
+- Khugo Sebastian Auditor
+- Nathan Braxton Candelario Ares
