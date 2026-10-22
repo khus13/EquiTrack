@@ -19,6 +19,7 @@ The website employs the following languages and frameworks:
 - ReactJS
 - PHP
 - MySQL
+- HTML, CSS, JS
 
 ## Credits
 
