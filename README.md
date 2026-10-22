@@ -11,7 +11,7 @@ Users can perform the following:
 
 Admins can perform the following:
 - Utilize the website as an organized list of equipment and facilities to repair
-- Mark reports as solved or fixed
+- Mark reports as solved (fixed)
 
 ## Tech Stack
 
