@@ -7,8 +7,9 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': 'http://localhost:8000',
-      '/uploads': 'http://localhost:8000',
+      // 127.0.0.1 avoids IPv6 'localhost' resolution problems on Windows/Node 18+.
+      '/api': 'http://127.0.0.1:8000',
+      '/uploads': 'http://127.0.0.1:8000',
     },
   },
 });

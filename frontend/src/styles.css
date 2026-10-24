@@ -31,8 +31,9 @@ select.pill:disabled { opacity: .7; cursor: not-allowed; }
 .green-link { color: var(--green); text-decoration: underline; } .blue-link { color: #4d73e6; }
 .center { text-align: center; }
 
-.pw-wrap { position: relative; } .pw-wrap .pill { padding-right: 70px; }
-.pw-eye { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); background: none; border: 0; cursor: pointer; display: flex; padding: 4px; }
+.pw-wrap { position: relative; } .pw-wrap .pill { padding-right: 70px; margin-bottom: 0; }
+.login-form .pw-wrap { margin-bottom: 20px; } .login-form .pw-wrap .pill { margin-bottom: 0; }
+.pw-eye { position: absolute; right: 18px; top: calc(50% - 3px); transform: translateY(-50%); line-height: 0; background: none; border: 0; cursor: pointer; display: flex; padding: 4px; }
 
 /* ---- login ---- */
 .auth-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }

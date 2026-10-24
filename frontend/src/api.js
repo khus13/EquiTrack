@@ -14,8 +14,12 @@ async function request(path, { method = 'GET', json, form } = {}) {
   let res;
   try { res = await fetch('/api' + path, opts); }
   catch { throw new ApiError('Cannot reach the server.', 0); }
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(data.error || 'Something went wrong.', res.status, data.errors || {});
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    // An empty/non-JSON 500 means the dev proxy could not reach the PHP server.
+    if (!data) throw new ApiError('Cannot reach the API server. Start it with: php -S localhost:8000 -t public public/index.php (inside the backend folder).', res.status);
+    throw new ApiError(data.error || 'Something went wrong.', res.status, data.errors || {});
+  }
   return data;
 }
 

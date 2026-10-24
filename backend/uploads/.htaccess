@@ -1,0 +1,7 @@
+# Apache: serve uploads as images only, never execute anything in this folder.
+php_flag engine off
+Options -Indexes -ExecCGI
+RemoveHandler .php .phtml .php3 .php5
+<FilesMatch "\.(?i:php|phtml|phar)$">
+  Require all denied
+</FilesMatch>

@@ -1,0 +1,4 @@
+# Apache: route everything that is not a real file to index.php
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
