@@ -19,11 +19,28 @@ Admins can perform the following:
 
 # Tech Stack
 
-The website employs the following languages and frameworks:
-- ReactJS
-- PHP
-- MySQL
-- HTML, CSS, JS
+Frontend
+- React 18 (UI components)
+- React Router 6 (page navigation)
+- Vite 5 (dev server and build tool)
+- JavaScript (JSX), HTML5 and CSS3 (custom styles, no UI framework)
+- Google Fonts (Hanken Grotesk, Jost)
+
+Backend
+- PHP 8 (plain PHP, no framework)
+- PDO (database access with prepared statements)
+- PHP sessions (login state) and bcrypt (password_hash) for passwords
+- REST-style JSON API
+
+Database
+- MySQL / MariaDB (tables: users, categories, buildings, locations, reports)
+- phpMyAdmin (used to import the schema)
+
+Tools and hosting
+- Node.js and npm (development and build only)
+- Git and GitHub (version control)
+- Apache on DCISM hosting, with an .htaccess file for routing
+- SFTP (uploading files to the server)
 
 # EquiTrack Installation & Setup
 
