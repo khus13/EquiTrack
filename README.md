@@ -8,10 +8,14 @@ Users can perform the following:
 - Submit a report of a damaged tool, facility, or infrastructure found within the campus
 - Describe the item being reported including its specific classroom and building, as well as type of damage
 - Search for listed equipment and infrastructure through categories (building, campus, type)
+- Modify names and passwords
+- Delete the users' personal accounts
 
 Admins can perform the following:
+- View all reports submitted by users
 - Utilize the website as an organized list of equipment and facilities to repair
 - Mark reports as solved (fixed)
+- Manage the registered accounts of all users
 
 # Tech Stack
 
