@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Base styles ---------- */
+@layer base {
+  html { color-scheme: dark; }
+  body { @apply bg-surface-base font-sans text-body text-white antialiased; }
+  h1 { @apply font-display text-h1 text-accent; }
+  h2 { @apply font-display text-h2 text-white; }
+  h3 { @apply text-h3 text-white; }
+  /* Visible keyboard focus everywhere (accessibility) */
+  :focus-visible { @apply outline-none shadow-focus; }
+  /* Respect "reduce motion" */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+/* ---------- Reusable component classes (used by the React components) ---------- */
+@layer components {
+  /* Buttons: pill shaped like the design */
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-pill px-6 py-2.5 font-display text-body font-semibold
+           transition disabled:cursor-not-allowed disabled:opacity-60 active:translate-y-px; }
+  .btn-primary { @apply bg-primary-btn text-white hover:bg-primary-hover; }
+  .btn-accent  { @apply bg-accent text-ink hover:bg-accent-dark; }
+  .btn-outline { @apply border-2 border-white/80 bg-transparent text-white hover:bg-white/10; }
+  .btn-danger  { @apply bg-danger text-white hover:brightness-110; }
+  .btn-ghost   { @apply bg-transparent text-white hover:bg-white/10; }
+  .btn-sm { @apply px-4 py-1.5 text-small; }
+  .btn-lg { @apply px-10 py-3.5 text-h3; }
+
+  /* Inputs: cream pills */
+  .input { @apply w-full rounded-pill border-2 border-transparent bg-cream px-5 py-3 text-body text-ink placeholder:text-neutral-500
+           focus:border-accent disabled:opacity-70; }
+  .input-error { @apply border-danger-light; }
+  textarea.input { @apply rounded-2xl; }
+  select.input { @apply cursor-pointer appearance-none pr-11; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='12' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M2 2l8 8 8-8'/%3E%3C/svg%3E");
+           background-repeat: no-repeat; background-position: right 1.1rem center; }
+  .label { @apply mb-1.5 block text-body font-medium text-white; }
+  .field-error { @apply mt-1.5 flex items-center gap-1 pl-4 text-small text-danger-light; }
+  .field-hint { @apply mt-1.5 pl-4 text-small text-muted; }
+
+  /* Cards + panels */
+  .card { @apply rounded-card bg-surface-raised p-6 shadow-card; }
+  .card-flat { @apply rounded-card border border-surface-line bg-surface-sunken p-5; }
+
+  /* Tables */
+  .table-wrap { @apply overflow-x-auto rounded-card border border-surface-line; }
+  .table { @apply w-full min-w-[640px] border-collapse text-left text-small; }
+  .table th { @apply whitespace-nowrap bg-surface-sunken px-4 py-3 font-semibold text-muted; }
+  .table td { @apply border-t border-surface-line px-4 py-3 align-middle; }
+  .table tbody tr { @apply hover:bg-white/5; }
+
+  /* Misc */
+  .chip { @apply inline-flex items-center rounded-pill border-2 border-white/70 px-3 py-1.5 text-small font-medium text-white transition hover:bg-white/10; }
+  .chip-active { @apply border-accent bg-accent text-ink hover:bg-accent; }
+  .page { @apply mx-auto w-full max-w-6xl px-4 py-8 sm:px-6; }
+  .link { @apply text-secondary-300 underline underline-offset-2 hover:text-white; }
+}
