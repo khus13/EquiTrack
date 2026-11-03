@@ -1,0 +1,11 @@
+# backend/.htaccess - extra safety if the backend folder is ever exposed by Apache.
+# Block direct access to everything except the API front controller.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # real requests to /api/... are rewritten by the project-root .htaccess
+  RewriteRule ^(config|controllers|models|middleware|helpers|scripts|uploads)/ - [F,L]
+  RewriteRule ^\.env - [F,L]
+</IfModule>
+<FilesMatch "^\.(env|git)">
+  Require all denied
+</FilesMatch>

@@ -1,0 +1,6 @@
+node_modules
+dist
+.env
+backend/.env
+backend/uploads/reports/*
+!backend/uploads/reports/.gitkeep

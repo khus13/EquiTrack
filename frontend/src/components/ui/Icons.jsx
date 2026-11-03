@@ -1,0 +1,40 @@
+/** Small inline SVG icons (no icon library needed). All accept className. */
+const base = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', viewBox: '0 0 24 24', 'aria-hidden': true };
+const make = (path) => function Icon({ className = 'h-5 w-5' }) {
+  return <svg {...base} className={className}>{path}</svg>;
+};
+
+export const IconSearch = make(<><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>);
+export const IconUser = make(<><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></>);
+export const IconUsers = make(<><circle cx="9" cy="8" r="3.5" /><path d="M2 20c0-3.5 3.5-5.5 7-5.5s7 2 7 5.5" /><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2.4.6 4 2.2 4 5.2" /></>);
+export const IconClipboard = make(<><rect x="5" y="4" width="14" height="17" rx="2" /><path d="M9 4V3h6v1M9 11h6M9 15h6" /></>);
+export const IconHome = make(<><path d="m3 11 9-8 9 8" /><path d="M5 10v10h14V10" /></>);
+export const IconGrid = make(<><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></>);
+export const IconBox = make(<><path d="M21 8 12 3 3 8v8l9 5 9-5z" /><path d="m3 8 9 5 9-5M12 13v8" /></>);
+export const IconDatabase = make(<><ellipse cx="12" cy="5" rx="8" ry="3" /><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" /></>);
+export const IconShield = make(<><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /><path d="m9 12 2 2 4-4" /></>);
+export const IconChart = make(<><path d="M4 20V4M4 20h16" /><path d="M8 16v-5M12 16V8M16 16v-8" /></>);
+export const IconCog = make(<><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" /></>);
+export const IconLogout = make(<><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" /><path d="m16 8 4 4-4 4M20 12H9" /></>);
+export const IconPlus = make(<path d="M12 5v14M5 12h14" />);
+export const IconEdit = make(<><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z" /></>);
+export const IconTrash = make(<><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></>);
+export const IconEye = make(<><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></>);
+export const IconEyeOff = make(<><path d="M3 3l18 18M10.6 6.1A9.9 9.9 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3.2 3.9M6.6 6.7A16.6 16.6 0 0 0 2 12s4 7 10 7a9.6 9.6 0 0 0 4-.9" /></>);
+export const IconChevronLeft = make(<path d="m15 18-6-6 6-6" />);
+export const IconChevronRight = make(<path d="m9 18 6-6-6-6" />);
+export const IconChevronDown = make(<path d="m6 9 6 6 6-6" />);
+export const IconClose = make(<path d="M6 6l12 12M18 6 6 18" />);
+export const IconCheck = make(<path d="m5 12 5 5 9-10" />);
+export const IconAlert = make(<><path d="M12 3 2 20h20z" /><path d="M12 10v4M12 17.5v.5" /></>);
+export const IconInfo = make(<><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 7.5v.5" /></>);
+export const IconPin = make(<><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z" /><circle cx="12" cy="9" r="2.5" /></>);
+export const IconUpload = make(<><path d="M12 16V4M7 9l5-5 5 5" /><path d="M4 16v4h16v-4" /></>);
+export const IconImage = make(<><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="1.8" /><path d="m4 18 5-5 4 4 3-3 4 4" /></>);
+export const IconMenu = make(<path d="M4 6h16M4 12h16M4 18h16" />);
+export const IconFilter = make(<path d="M3 5h18l-7 8v6l-4 2v-8z" />);
+export const IconSort = make(<path d="M8 4v16M4 16l4 4 4-4M16 20V4M12 8l4-4 4 4" />);
+export const IconClock = make(<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>);
+export const IconWrench = make(<path d="M14.7 6.3a4 4 0 0 0 5 5L21 15l-6 6-3.5-3.5L3 9l3-3 3.5 3.5z" />);
+export const IconRefresh = make(<><path d="M20 11a8 8 0 0 0-14-4M4 5v4h4" /><path d="M4 13a8 8 0 0 0 14 4M20 19v-4h-4" /></>);
+export const IconInbox = make(<><path d="M3 13h5l1 3h6l1-3h5" /><path d="M5 5h14l2 8v6H3v-6z" /></>);

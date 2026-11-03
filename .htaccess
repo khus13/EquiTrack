@@ -1,0 +1,15 @@
+# Project-root .htaccess (Apache / XAMPP / DCISM hosting)
+Options -Indexes
+RewriteEngine On
+
+# 1) API requests -> PHP front controller
+RewriteRule ^api(/.*)?$ backend/api/index.php [END,QSA]
+
+# 2) Hide private folders and files
+RewriteRule ^(backend|database|frontend|node_modules)(/|$) - [F,L]
+RewriteRule ^(README\.md|\.env.*)$ - [F,L]
+
+# 3) React single-page app: serve index.html for every URL that is not a real file
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
