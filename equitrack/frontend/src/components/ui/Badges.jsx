@@ -24,7 +24,7 @@ const PRIORITY = {
 };
 export function PriorityTag({ priority }) {
   return (
-    <span className={`${pill} ${PRIORITY[priority] || PRIORITY.Low} ${priority === 'Urgent' ? 'uppercase tracking-wide' : ''}`}>
+    <span className={`${pill} ${PRIORITY[priority] || PRIORITY.Low} ${priority === 'Urgent' ? 'tracking-wide' : ''}`}>
       {priority === 'Urgent' && <span aria-hidden="true">▲</span>}{priority}
     </span>
   );

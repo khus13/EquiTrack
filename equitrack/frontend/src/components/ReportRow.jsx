@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { StatusBadge, PriorityTag } from './ui/Badges.jsx';
 import { imageUrl } from '../lib/api.js';
-import { IconImage, IconPin, IconChevronRight } from './ui/Icons.jsx';
+import { IconImage, IconPin } from './ui/Icons.jsx';
 import { formatDate, placeOf } from '../lib/format.js';
 
 /** One report as a dark row card (used on dashboards and My Reports). `base` = '/reports' or '/admin/reports' */
@@ -17,13 +17,12 @@ export default function ReportRow({ report, base = '/reports', showReporter = fa
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-h3">{report.item_name}</p>
           <p className="flex items-center gap-1.5 truncate text-small text-muted"><IconPin className="h-4 w-4 shrink-0" />{placeOf(report)}</p>
-          <p className="text-tiny text-muted">{report.reference_no} · {formatDate(report.created_at)}{showReporter && ` · ${report.reporter_name}`}</p>
+          <p className="text-tiny text-muted"><span title="ET stands for EquiTrack">{report.reference_no}</span> · {formatDate(report.created_at)}{showReporter && ` · ${report.reporter_name}`}</p>
         </div>
         <div className="flex flex-col items-end gap-1.5">
           <StatusBadge status={report.status} />
           <PriorityTag priority={report.priority} />
         </div>
-        <IconChevronRight className="h-5 w-5 shrink-0 text-muted" />
       </Link>
       {actions && <div className="flex shrink-0 gap-1">{actions}</div>}
     </li>

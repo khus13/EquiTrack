@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi.js';
 import { useListQuery, useSearchBox } from '../../hooks/useListQuery.js';
-import { api } from '../../lib/api.js';
+import { api, imageUrl } from '../../lib/api.js';
 import { useMeta } from '../../context/MetaContext.jsx';
 import { PageHeader, SearchFilterBar, FilterSelect, DataTable, Pagination } from '../../components/ui/Data.jsx';
 import { StatusBadge, PriorityTag } from '../../components/ui/Badges.jsx';
 import { EmptyState } from '../../components/ui/Feedback.jsx';
-import { STATUSES, PRIORITIES } from '../../lib/constants.js';
+import { PAGE_SIZE, STATUSES, PRIORITIES } from '../../lib/constants.js';
 import { formatDate, placeOf } from '../../lib/format.js';
-import { IconClipboard, IconEye } from '../../components/ui/Icons.jsx';
+import { IconClipboard, IconImage } from '../../components/ui/Icons.jsx';
 
 /** Report management table: search, filter, sort, paginate. Everything lives in the URL. */
 export default function ManageReports() {
@@ -16,7 +16,7 @@ export default function ManageReports() {
   const { query, setQuery, reset } = useListQuery({ q: '', status: '', priority: '', category_id: '', campus_id: '', sort: 'created_at', dir: 'desc', page: 1 });
   const [text, setText] = useSearchBox(query, setQuery);
 
-  const { data, loading, error, reload } = useApi(() => api.get('/reports', { ...query, per_page: 10 }), [JSON.stringify(query)]);
+  const { data, loading, error, reload } = useApi(() => api.get('/reports', { ...query, per_page: PAGE_SIZE }), [JSON.stringify(query)]);
 
   // click a header: same column flips direction, new column starts descending (priority starts "asc" = Urgent first)
   const onSort = (key) => setQuery(query.sort === key
@@ -25,20 +25,23 @@ export default function ManageReports() {
 
   const columns = [
     { key: 'item', header: 'Item', sortKey: 'item_name', render: (r) => (
-      <div className="min-w-[10rem]"><Link to={`/admin/reports/${r.id}`} className="font-semibold text-white hover:text-accent hover:underline">{r.item_name}</Link><p className="text-tiny text-muted">{r.reference_no}</p></div>) },
+      <div className="flex min-w-[13rem] items-center gap-3">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-raised text-muted">
+          {r.image_id ? <img src={imageUrl(r.image_id)} alt="" loading="lazy" className="h-full w-full object-cover" /> : <IconImage className="h-5 w-5" />}
+        </div>
+        <div className="min-w-0"><Link to={`/admin/reports/${r.id}`} className="font-semibold text-white hover:text-accent hover:underline">{r.item_name}</Link><p className="text-tiny text-muted">{r.reference_no}</p></div>
+      </div>) },
     { key: 'place', header: 'Location', render: (r) => <div className="min-w-[10rem]"><p>{placeOf(r)}</p><p className="text-tiny text-muted">{r.campus_name}</p></div> },
     { key: 'reporter', header: 'Reporter', render: (r) => r.reporter_name },
     { key: 'priority', header: 'Priority', sortKey: 'priority', render: (r) => <PriorityTag priority={r.priority} /> },
     { key: 'status', header: 'Status', sortKey: 'status', render: (r) => <StatusBadge status={r.status} /> },
     { key: 'created', header: 'Submitted', sortKey: 'created_at', render: (r) => <span className="whitespace-nowrap">{formatDate(r.created_at)}</span> },
-    { key: 'act', header: <span className="sr-only">Actions</span>, render: (r) => (
-      <Link to={`/admin/reports/${r.id}`} className="btn btn-outline btn-sm" aria-label={`View ${r.item_name}`}><IconEye className="h-4 w-4" /> View</Link>) },
   ];
 
   const filtered = ['q', 'status', 'priority', 'category_id', 'campus_id'].some((k) => query[k]);
   return (
     <>
-      <PageHeader title="Manage reports" subtitle="Search, filter and update every report." breadcrumbs={[{ label: 'Admin', to: '/admin' }, { label: 'Reports' }]} />
+      <PageHeader title="All reports" subtitle="Search, filter and update every report." breadcrumbs={[{ label: 'Admin', to: '/admin' }, { label: 'All reports' }]} />
       <SearchFilterBar value={text} onChange={setText} placeholder="Search reports…" showReset={filtered} onReset={() => { setText(''); reset(); }}>
         <FilterSelect label="Status" placeholder="All statuses" value={query.status} onChange={(v) => setQuery({ status: v })} options={STATUSES.map((s) => ({ value: s, label: s }))} />
         <FilterSelect label="Priority" placeholder="All priorities" value={query.priority} onChange={(v) => setQuery({ priority: v })} options={PRIORITIES.map((s) => ({ value: s, label: s }))} />

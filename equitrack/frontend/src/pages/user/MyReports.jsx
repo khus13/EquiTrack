@@ -3,24 +3,29 @@ import { Link } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi.js';
 import { useListQuery, useSearchBox } from '../../hooks/useListQuery.js';
 import { api } from '../../lib/api.js';
+import { PAGE_SIZE } from '../../lib/constants.js';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { hasRole } from '../../lib/constants.js';
 import { PageHeader, SearchFilterBar, FilterSelect, Pagination } from '../../components/ui/Data.jsx';
 import { ConfirmDialog } from '../../components/ui/Modal.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../../components/ui/Feedback.jsx';
 import Button from '../../components/ui/Button.jsx';
 import ReportRow from '../../components/ReportRow.jsx';
 import { STATUSES } from '../../lib/constants.js';
-import { IconClipboard, IconTrash, IconEye, IconPlus } from '../../components/ui/Icons.jsx';
+import { IconClipboard, IconTrash, IconPlus, IconEye } from '../../components/ui/Icons.jsx';
 
 export default function MyReports() {
   const toast = useToast();
+  const { user } = useAuth();
+  const isAdmin = hasRole(user, 'admin');
   const { query, setQuery, reset } = useListQuery({ q: '', status: '', page: 1 });
   const [search, setSearch] = useSearchBox(query, setQuery);
   const [toDelete, setToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   const { data, loading, error, reload } = useApi(
-    () => api.get('/reports', { q: query.q, status: query.status, page: query.page, per_page: 8 }),
+    () => api.get('/reports', { q: query.q, status: query.status, page: query.page, per_page: PAGE_SIZE }),
     [query.q, query.status, query.page]
   );
 
@@ -34,8 +39,8 @@ export default function MyReports() {
   const filtered = query.q || query.status;
   return (
     <div className="page">
-      <PageHeader title="My reports" subtitle="Browse and follow the reports you filed."
-        breadcrumbs={[{ label: 'Dashboard', to: '/dashboard' }, { label: 'My reports' }]}
+      <PageHeader title={isAdmin ? 'All reports' : 'My reports'} subtitle={isAdmin ? 'Browse and follow every submitted report.' : 'Browse and follow the reports you filed.'}
+        breadcrumbs={[{ label: 'Dashboard', to: isAdmin ? '/admin' : '/dashboard' }, { label: isAdmin ? 'All reports' : 'My reports' }]}
         actions={<Button to="/reports/new"><IconPlus className="h-5 w-5" /> New report</Button>} />
 
       <SearchFilterBar value={search} onChange={setSearch} placeholder="Search your reports…" showReset={!!filtered}
@@ -55,7 +60,7 @@ export default function MyReports() {
                 {data.items.map((r) => (
                   <ReportRow key={r.id} report={r} actions={<>
                     <Link to={`/reports/${r.id}`} className="rounded-full p-2 text-muted hover:bg-white/10 hover:text-white" aria-label={`View ${r.item_name}`}><IconEye /></Link>
-                    {r.status === 'Pending' && (
+                    {!isAdmin && r.status === 'Pending' && (
                       <button type="button" onClick={() => setToDelete(r)} className="rounded-full p-2 text-danger-light hover:bg-danger/20" aria-label={`Delete ${r.item_name}`}><IconTrash /></button>
                     )}
                   </>} />

@@ -99,3 +99,18 @@ export const api = {
 
 /** URL of a protected report photo (the cookie is sent automatically by <img>). */
 export const imageUrl = (imageId) => `${BASE}/report-images/${imageId}`;
+/** URL of the selected report photo for a public directory equipment card. */
+export const equipmentImageUrl = (equipmentId) => `${BASE}/equipment/${equipmentId}/image`;
+/** URL of a report photo shown on its public-safe summary page. */
+export const publicReportImageUrl = (reportId, imageId) =>
+  `${BASE}/public-report-images/${imageId}?report_id=${encodeURIComponent(reportId)}`;
+
+/** Refresh open directory tabs after a successful report submission. */
+export function notifyReportSubmitted() {
+  window.dispatchEvent(new Event('equitrack:report-submitted'));
+  if (typeof BroadcastChannel !== 'undefined') {
+    const channel = new BroadcastChannel('equitrack-updates');
+    channel.postMessage({ type: 'report-submitted' });
+    channel.close();
+  }
+}

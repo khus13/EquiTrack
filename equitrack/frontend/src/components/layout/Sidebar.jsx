@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import Logo from './Logo.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { ROLE_LABEL } from '../../lib/constants.js';
-import { IconUser, IconLogout, IconMenu, IconClose, IconChevronLeft } from '../ui/Icons.jsx';
+import { homePathFor, ROLE_LABEL } from '../../lib/constants.js';
+import { IconUser, IconLogout, IconMenu, IconClose, IconChevronLeft, IconHome } from '../ui/Icons.jsx';
 
 /**
  * Black sidebar (Account / Admin / Super Admin screens).
@@ -20,6 +20,9 @@ export default function Sidebar({ sections, backTo, showLogo = true }) {
 
   const content = (
     <div className="flex h-full flex-col gap-6 px-4 py-5">
+      <Link to={homePathFor(user)} aria-label="Home" title="Home" className="flex h-10 w-10 items-center justify-center rounded-xl text-white hover:bg-white/10 hover:text-accent">
+        <IconHome className="h-5 w-5" />
+      </Link>
       {backTo && (
         <Link to={backTo} className="flex items-center gap-2 font-display font-semibold hover:text-accent"><IconChevronLeft /> Back</Link>
       )}
@@ -36,7 +39,7 @@ export default function Sidebar({ sections, backTo, showLogo = true }) {
       <nav aria-label="Section" className="flex-1 space-y-5 overflow-y-auto">
         {sections.map((s, i) => (
           <div key={i}>
-            {s.title && <p className="mb-1.5 px-3 text-tiny font-semibold uppercase tracking-wider text-muted">{s.title}</p>}
+            {s.title && <p className="mb-1.5 px-3 text-tiny font-semibold tracking-wider text-muted">{s.title}</p>}
             <ul className="space-y-1">
               {s.items.map((it) => (
                 <li key={it.to}>
@@ -63,7 +66,7 @@ export default function Sidebar({ sections, backTo, showLogo = true }) {
       {/* mobile */}
       <div className="sticky top-0 z-40 bg-surface-nav lg:hidden">
         <div className="flex items-center justify-between px-4 py-2.5">
-          <Logo className="h-9" />
+          <Logo className="h-9" to={homePathFor(user)} />
           <button type="button" className="rounded-lg p-2 hover:bg-white/10" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label={open ? 'Close menu' : 'Open menu'}>
             {open ? <IconClose className="h-6 w-6" /> : <IconMenu className="h-6 w-6" />}
           </button>

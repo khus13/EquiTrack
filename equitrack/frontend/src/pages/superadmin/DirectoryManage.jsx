@@ -13,8 +13,10 @@ import LocationSelects from '../../components/LocationSelects.jsx';
 import Button from '../../components/ui/Button.jsx';
 import { EQUIPMENT_STATUS_LABEL } from '../../lib/constants.js';
 import { IconPlus, IconEdit, IconTrash, IconBox } from '../../components/ui/Icons.jsx';
+import { equipmentImageUrl } from '../../lib/api.js';
 
 const BLANK = { asset_tag: '', name: '', category_id: '', type_id: '', campus_id: '', building_id: '', room_id: '', status: 'operational', description: '' };
+const DIRECTORY_PAGE_SIZE = 9;
 
 /** Super Admin: add / edit / delete equipment in the directory. */
 export default function DirectoryManage() {
@@ -22,7 +24,7 @@ export default function DirectoryManage() {
   const toast = useToast();
   const { query, setQuery, reset } = useListQuery({ q: '', category_id: '', campus_id: '', status: '', page: 1 });
   const [text, setText] = useSearchBox(query, setQuery);
-  const { data, loading, error, reload } = useApi(() => api.get('/equipment', { ...query, per_page: 10 }), [JSON.stringify(query)]);
+  const { data, loading, error, reload } = useApi(() => api.get('/equipment', { ...query, per_page: DIRECTORY_PAGE_SIZE }), [JSON.stringify(query)]);
 
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(BLANK);
@@ -55,7 +57,7 @@ export default function DirectoryManage() {
 
   const types = meta.equipment_types.filter((t) => String(t.category_id) === String(form.category_id));
   const columns = [
-    { key: 'name', header: 'Equipment', render: (e) => <div className="min-w-[10rem]"><p className="font-semibold">{e.name}</p><p className="text-tiny text-muted">{e.asset_tag}</p></div> },
+    { key: 'name', header: 'Equipment', render: (e) => <div className="flex min-w-[10rem] items-center gap-3"><div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-surface-sunken">{e.image_id && <img src={equipmentImageUrl(e.id)} alt={`Report photo for ${e.name}`} loading="lazy" onError={(event) => { event.currentTarget.hidden = true; }} className="h-full w-full object-cover" />}</div><div><p className="font-semibold">{e.name}</p><p className="text-tiny text-muted">{e.asset_tag}</p></div></div> },
     { key: 'cat', header: 'Category / type', render: (e) => <div><p>{e.category_name}</p><p className="text-tiny text-muted">{e.type_name || '—'}</p></div> },
     { key: 'loc', header: 'Location', render: (e) => <div className="min-w-[10rem]"><p>{e.room_name}, {e.building_name}</p><p className="text-tiny text-muted">{e.campus_name}</p></div> },
     { key: 'status', header: 'Condition', render: (e) => <EquipmentStatusBadge status={e.status} /> },

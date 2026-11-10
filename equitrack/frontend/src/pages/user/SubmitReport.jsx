@@ -7,7 +7,7 @@ import Button from '../../components/ui/Button.jsx';
 import LocationSelects from '../../components/LocationSelects.jsx';
 import { useMeta } from '../../context/MetaContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
-import { api, ApiError } from '../../lib/api.js';
+import { api, ApiError, notifyReportSubmitted } from '../../lib/api.js';
 import { PRIORITIES } from '../../lib/constants.js';
 import { validateReport } from '../../lib/validators.js';
 
@@ -32,6 +32,7 @@ export default function SubmitReport() {
 
   // Coming from the directory ("Report a problem" button)? Pre-fill from that equipment.
   const equipmentId = params.get('equipment');
+
   useEffect(() => {
     if (!equipmentId) return;
     api.get(`/equipment/${equipmentId}`).then((e) => setValues((v) => ({
@@ -57,6 +58,7 @@ export default function SubmitReport() {
     setBusy(true);
     try {
       const res = await api.withMessage.postForm('/reports', form);
+      notifyReportSubmitted();
       toast.success(`Report ${res.data.reference_no} submitted. Thank you!`);
       navigate(`/reports/${res.data.id}`);
     } catch (err) {
@@ -70,7 +72,7 @@ export default function SubmitReport() {
       <Breadcrumbs items={[{ label: 'Dashboard', to: '/dashboard' }, { label: 'File a report' }]} />
       <div className="card sm:p-10">
         <h1>Fill out form</h1>
-        <p className="mt-4 font-display font-semibold uppercase text-secondary-300">Reporting a repair?</p>
+        <p className="mt-4 font-display font-semibold text-secondary-300">Reporting a repair?</p>
         <p className="mb-6 text-neutral-200">Fill out this sheet with the necessary information about the item or infrastructure that is broken within the University of San Carlos campus.</p>
 
         {metaError && <Alert type="error" className="mb-4">Could not load the form options: {metaError}</Alert>}
@@ -95,7 +97,7 @@ export default function SubmitReport() {
 
           <div className="flex flex-wrap justify-center gap-3 pt-3">
             <Button variant="outline" onClick={() => navigate(-1)} disabled={busy}>Cancel</Button>
-            <Button type="submit" size="lg" loading={busy} className="uppercase">Submit report</Button>
+            <Button type="submit" size="lg" loading={busy}>Submit report</Button>
           </div>
         </form>
       </div>

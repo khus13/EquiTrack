@@ -44,8 +44,8 @@ export default function Register() {
     <AuthShell image={false}>
       <div className="w-full max-w-xl">
         <Link to="/" aria-label="EquiTrack home" className="mb-2 inline-block"><img src="/logo.png" alt="EquiTrack" className="h-16 w-auto" /></Link>
-        <h1 className="text-center uppercase">Create account</h1>
-        <p className="mb-8 mt-2 text-center font-display text-h3 font-semibold uppercase text-secondary-300">Let’s get started.</p>
+        <h1 className="text-center">Create account</h1>
+        <p className="mb-8 mt-2 text-center font-display text-h3 font-semibold text-secondary-300">Let’s get started.</p>
 
         <form onSubmit={submit} noValidate className="space-y-4" aria-label="Create account">
           {formError && <Alert type="error">{formError}</Alert>}
@@ -56,7 +56,7 @@ export default function Register() {
           <TextInput label="Email" type="email" autoComplete="email" placeholder="juandelacruz@usc.edu.ph" value={values.email} onChange={set('email')} error={errors.email} required />
           <PasswordInput label="Password" autoComplete="new-password" placeholder="At least 8 characters, letters and numbers" value={values.password} onChange={set('password')} error={errors.password} required />
           <PasswordInput label="Confirm password" autoComplete="new-password" placeholder="Type it again" value={values.confirm_password} onChange={set('confirm_password')} error={errors.confirm_password} required />
-          <div className="pt-3 text-center"><Button type="submit" size="lg" loading={busy} className="min-w-[16rem] uppercase">Create account</Button></div>
+          <div className="pt-3 text-center"><Button type="submit" size="lg" loading={busy} className="min-w-[16rem]">Create account</Button></div>
         </form>
         <p className="mt-6 text-center text-neutral-300">Already have an account? <Link to="/login" className="link">Sign in</Link></p>
       </div>

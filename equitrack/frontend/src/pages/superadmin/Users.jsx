@@ -11,7 +11,7 @@ import { TextInput, PasswordInput, Select } from '../../components/ui/Form.jsx';
 import { Alert, EmptyState } from '../../components/ui/Feedback.jsx';
 import Button from '../../components/ui/Button.jsx';
 import { formatDate } from '../../lib/format.js';
-import { ROLE_LABEL } from '../../lib/constants.js';
+import { PAGE_SIZE, ROLE_LABEL } from '../../lib/constants.js';
 import { IconPlus, IconEdit, IconTrash, IconUsers } from '../../components/ui/Icons.jsx';
 
 const BLANK = { first_name: '', last_name: '', email: '', password: '', role: 'user', status: 'active' };
@@ -21,7 +21,7 @@ export default function Users() {
   const toast = useToast();
   const { query, setQuery, reset } = useListQuery({ q: '', role: '', status: '', page: 1 });
   const [text, setText] = useSearchBox(query, setQuery);
-  const { data, loading, error, reload } = useApi(() => api.get('/users', { ...query, per_page: 10 }), [JSON.stringify(query)]);
+  const { data, loading, error, reload } = useApi(() => api.get('/users', { ...query, per_page: PAGE_SIZE }), [JSON.stringify(query)]);
 
   const [editing, setEditing] = useState(null);     // null | 'new' | user object
   const [form, setForm] = useState(BLANK);

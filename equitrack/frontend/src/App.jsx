@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { AppLayout, AccountLayout, StaffLayout } from './components/layout/Layouts.jsx';
+import { useAuth } from './context/AuthContext.jsx';
+import { homePathFor } from './lib/constants.js';
 
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
@@ -27,8 +29,8 @@ import AuditLogs from './pages/superadmin/AuditLogs.jsx';
 
 /**
  * ROUTE MAP
- *   public ............ /  /login  /register  /faqs  /unauthorized
- *   any signed-in user  /dashboard  /reports  /reports/new  /reports/:id  /directory  /account/*
+ *   public ............ /  /login  /register  /faqs  /directory  /reports/:id  /unauthorized
+ *   any signed-in user  /dashboard  /reports  /reports/new  /account/*
  *   admin + super admin /admin  /admin/reports  /admin/reports/:id
  *   super admin only .. /super-admin  /super-admin/users|reference|directory|audit
  *   anything else ..... 404
@@ -40,15 +42,15 @@ export default function App() {
       <Route element={<AppLayout />}>
         <Route path="/" element={<Landing />} />
         <Route path="/faqs" element={<FAQs />} />
+        <Route path="/directory" element={<Directory />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/reports" element={<MyReports />} />
           <Route path="/reports/new" element={<SubmitReport />} />
-          <Route path="/reports/:id" element={<ReportDetail />} />
-          <Route path="/directory" element={<Directory />} />
         </Route>
+        <Route path="/reports/:id" element={<ReportDetail />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>
@@ -88,4 +90,11 @@ export default function App() {
       <Route path="/home" element={<Navigate to="/" replace />} />
     </Routes>
   );
+}
+
+function DashboardHome() {
+  const { user } = useAuth();
+  return user?.role === 'user'
+    ? <UserDashboard />
+    : <Navigate to={homePathFor(user)} replace />;
 }

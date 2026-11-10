@@ -16,7 +16,7 @@ export default function AdminDashboard() {
   return (
     <>
       <PageHeader title="Admin dashboard" subtitle="Everything that needs attention on campus."
-        actions={<Button to="/admin/reports">Manage reports</Button>} />
+        actions={<><Button to="/reports/new" variant="outline">File a report</Button><Button to="/admin/reports">All reports</Button></>} />
 
       {error ? <ErrorState message={error.message} onRetry={reload} /> : (
         <>
@@ -31,7 +31,7 @@ export default function AdminDashboard() {
             {/* ---- To Repair ---- */}
             <section aria-labelledby="repair-h" className="card">
               <div className="mb-4 flex items-center justify-between">
-                <h2 id="repair-h" className="text-h3">To repair <span className="text-muted">· most urgent first</span></h2>
+                <h2 id="repair-h" className="text-h3">To Repair <span className="text-muted">· most urgent first</span></h2>
                 <Link to="/admin/reports?sort=priority&dir=asc" className="link text-small">See all</Link>
               </div>
               {loading ? <div className="space-y-3">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
@@ -56,7 +56,10 @@ export default function AdminDashboard() {
 
             {/* ---- Recent ---- */}
             <section aria-labelledby="recent-h" className="card">
-              <h2 id="recent-h" className="mb-4 text-h3">Recent reports</h2>
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <h2 id="recent-h" className="text-h3">Latest Reports</h2>
+                <Link to="/admin/reports" className="link text-small">View all reports</Link>
+              </div>
               {loading ? <div className="space-y-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-20 w-full rounded-2xl" />)}</div>
                 : data.recent.length === 0 ? <EmptyState title="No reports yet" />
                 : <ul className="space-y-3">{data.recent.map((r) => <ReportRow key={r.id} report={r} base="/admin/reports" showReporter />)}</ul>}

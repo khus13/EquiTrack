@@ -1,6 +1,7 @@
 import { useApi } from '../../hooks/useApi.js';
 import { useListQuery, useSearchBox } from '../../hooks/useListQuery.js';
 import { api } from '../../lib/api.js';
+import { PAGE_SIZE } from '../../lib/constants.js';
 import { PageHeader, SearchFilterBar, FilterSelect, DataTable, Pagination } from '../../components/ui/Data.jsx';
 import { EmptyState } from '../../components/ui/Feedback.jsx';
 import { formatDateTime } from '../../lib/format.js';
@@ -14,7 +15,7 @@ const tone = (a) => a.endsWith('failed') || a.endsWith('delete') ? 'text-danger-
 export default function AuditLogs() {
   const { query, setQuery, reset } = useListQuery({ q: '', action: '', from: '', to: '', page: 1 });
   const [text, setText] = useSearchBox(query, setQuery);
-  const { data, loading, error, reload } = useApi(() => api.get('/audit-logs', { ...query, per_page: 15 }), [JSON.stringify(query)]);
+  const { data, loading, error, reload } = useApi(() => api.get('/audit-logs', { ...query, per_page: PAGE_SIZE }), [JSON.stringify(query)]);
 
   const columns = [
     { key: 'when', header: 'When', render: (l) => <span className="whitespace-nowrap">{formatDateTime(l.created_at)}</span> },

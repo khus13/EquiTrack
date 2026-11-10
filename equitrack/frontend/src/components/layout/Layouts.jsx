@@ -4,7 +4,7 @@ import Footer from './Footer.jsx';
 import Sidebar from './Sidebar.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { hasRole } from '../../lib/constants.js';
-import { IconGrid, IconClipboard, IconUser, IconCog, IconUsers, IconDatabase, IconBox, IconShield, IconChart, IconHome } from '../ui/Icons.jsx';
+import { IconGrid, IconClipboard, IconUser, IconCog, IconUsers, IconDatabase, IconBox, IconShield, IconChart, IconPlus } from '../ui/Icons.jsx';
 
 /** Public + user pages: top navbar, content, footer. */
 export function AppLayout() {
@@ -20,12 +20,13 @@ export function AppLayout() {
 
 /** Account pages (screenshots): sidebar with Back / Account / My Reports. */
 export function AccountLayout() {
+  const { user } = useAuth();
   const sections = [
     { items: [
       { to: '/account', label: 'Profile info', icon: IconUser, end: true },
       { to: '/account/security', label: 'Password & security', icon: IconCog },
     ] },
-    { items: [{ to: '/reports', label: 'My reports', icon: IconClipboard, end: true }] },
+    { items: [{ to: '/reports', label: hasRole(user, 'admin') ? 'All reports' : 'My reports', icon: IconClipboard, end: true }] },
   ];
   return <PanelShell sidebar={<Sidebar sections={sections} backTo="/dashboard" showLogo={false} />} />;
 }
@@ -36,8 +37,8 @@ export function StaffLayout() {
   const sections = [
     { title: 'Admin', items: [
       { to: '/admin', label: 'Dashboard', icon: IconGrid, end: true },
-      { to: '/admin/reports', label: 'Manage reports', icon: IconClipboard },
-      { to: '/directory', label: 'Equipment directory', icon: IconBox },
+      { to: '/reports/new', label: 'File a report', icon: IconPlus },
+      { to: '/admin/reports', label: 'All reports', icon: IconClipboard },
     ] },
   ];
   if (hasRole(user, 'super_admin')) {
@@ -51,7 +52,6 @@ export function StaffLayout() {
   }
   sections.push({ items: [
     { to: '/account', label: 'My account', icon: IconCog },
-    { to: '/dashboard', label: 'User view', icon: IconHome },
   ] });
   return <PanelShell sidebar={<Sidebar sections={sections} />} />;
 }

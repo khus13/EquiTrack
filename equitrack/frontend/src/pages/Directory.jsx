@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApi } from '../hooks/useApi.js';
 import { useListQuery, useSearchBox } from '../hooks/useListQuery.js';
-import { api } from '../lib/api.js';
+import { api, equipmentImageUrl } from '../lib/api.js';
 import { useMeta } from '../context/MetaContext.jsx';
 import { EQUIPMENT_STATUS_LABEL } from '../lib/constants.js';
 import { Breadcrumbs, Pagination } from '../components/ui/Data.jsx';
 import { EquipmentStatusBadge } from '../components/ui/Badges.jsx';
 import { EmptyState, ErrorState, CardSkeleton } from '../components/ui/Feedback.jsx';
 import Button from '../components/ui/Button.jsx';
-import { IconSearch, IconPin, IconBox, IconWrench } from '../components/ui/Icons.jsx';
+import { IconSearch, IconPin, IconBox, IconChevronRight } from '../components/ui/Icons.jsx';
+
+const DIRECTORY_PAGE_SIZE = 12;
 
 /** A group of toggle chips; click an active chip again to clear it. */
 function Chips({ title, items, field, query, setQuery }) {
@@ -40,7 +43,24 @@ export default function Directory() {
   const [text, setText] = useSearchBox(query, setQuery);
   const [showFilters, setShowFilters] = useState(false);   // phones: filters start collapsed
 
-  const { data, loading, error, reload } = useApi(() => api.get('/equipment', { ...query, per_page: 12 }), [JSON.stringify(query)]);
+  const { data, loading, error, reload } = useApi(() => api.get('/equipment', { ...query, per_page: DIRECTORY_PAGE_SIZE }), [JSON.stringify(query)]);
+
+  useEffect(() => {
+    const refresh = () => reload();
+    const onMessage = (event) => {
+      if (event.data?.type === 'report-submitted') refresh();
+    };
+    window.addEventListener('equitrack:report-submitted', refresh);
+    window.addEventListener('focus', refresh);
+    const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('equitrack-updates') : null;
+    if (channel) channel.addEventListener('message', onMessage);
+    return () => {
+      window.removeEventListener('equitrack:report-submitted', refresh);
+      window.removeEventListener('focus', refresh);
+      channel?.removeEventListener('message', onMessage);
+      channel?.close();
+    };
+  }, [reload]);
 
   const buildings = meta.buildings.filter((b) => !query.campus_id || String(b.campus_id) === String(query.campus_id));
   const types = meta.equipment_types.filter((t) => !query.category_id || String(t.category_id) === String(query.category_id));
@@ -73,9 +93,9 @@ export default function Directory() {
             </select>
           </fieldset>
           <fieldset>
-            <legend className="mb-2 font-display text-h3 text-secondary-300">Condition</legend>
-            <select aria-label="Condition" value={query.status} onChange={(e) => setQuery({ status: e.target.value })} className="input py-2.5">
-              <option value="">Any condition</option>
+            <legend className="mb-2 font-display text-h3 text-secondary-300">Status</legend>
+            <select aria-label="Equipment status" value={query.status} onChange={(e) => setQuery({ status: e.target.value })} className="input py-2.5">
+              <option value="">All statuses</option>
               {Object.entries(EQUIPMENT_STATUS_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
           </fieldset>
@@ -98,23 +118,33 @@ export default function Directory() {
               : (
                 <>
                   <ul className={`grid gap-5 sm:grid-cols-2 2xl:grid-cols-3 ${loading ? 'opacity-60' : ''}`}>
-                    {data.items.map((e) => (
-                      <li key={e.id} className="flex flex-col rounded-card bg-surface-raised p-5">
-                        <div className="mb-3 flex items-start justify-between gap-2">
-                          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-sunken text-accent"><IconBox /></span>
-                          <EquipmentStatusBadge status={e.status} />
+                    {data.items.map((e) => {
+                      const card = (
+                        <div className={`flex h-full flex-col overflow-hidden rounded-card bg-surface-raised transition ${e.latest_report_id ? 'group-hover:bg-white/5 group-hover:ring-2 group-hover:ring-accent/60' : ''}`}>
+                          <div className="h-40 w-full bg-surface-sunken">
+                            {e.image_id && <img src={equipmentImageUrl(e.id)} alt={`Report photo for ${e.name}`} loading="lazy"
+                              onError={(event) => { event.currentTarget.hidden = true; }} className="h-full w-full object-cover" />}
+                          </div>
+                          <div className="flex flex-1 flex-col p-5">
+                            <div className="flex items-start justify-between gap-3">
+                              <h3 className="break-words font-display">{e.name}</h3>
+                              {e.latest_report_id && <IconChevronRight className="mt-1 h-5 w-5 shrink-0 text-accent transition-transform group-hover:translate-x-1" />}
+                            </div>
+                            <p className="text-tiny text-muted">{e.asset_tag} · {e.type_name || e.category_name}</p>
+                            <p className="mt-2 flex items-start gap-1.5 text-small text-neutral-200"><IconPin className="mt-0.5 h-4 w-4 shrink-0 text-muted" />{e.room_name}, {e.building_name} · {e.campus_name}</p>
+                            <div className="mt-auto pt-4"><EquipmentStatusBadge status={e.status} /></div>
+                          </div>
                         </div>
-                        <h3 className="break-words font-display">{e.name}</h3>
-                        <p className="text-tiny text-muted">{e.asset_tag} · {e.type_name || e.category_name}</p>
-                        <p className="mt-2 flex items-start gap-1.5 text-small text-neutral-200"><IconPin className="mt-0.5 h-4 w-4 shrink-0 text-muted" />{e.room_name}, {e.building_name} · {e.campus_name}</p>
-                        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4">
-                          {e.open_reports > 0
-                            ? <span className="flex items-center gap-1.5 whitespace-nowrap text-small font-semibold text-[#f5b83d]"><IconWrench className="h-4 w-4" />{e.open_reports} open report{e.open_reports > 1 ? 's' : ''}</span>
-                            : <span className="whitespace-nowrap text-small text-muted">No open reports</span>}
-                          <Button to={`/reports/new?equipment=${e.id}`} size="sm" variant="outline" className="whitespace-nowrap">Report a problem</Button>
-                        </div>
-                      </li>
-                    ))}
+                      );
+                      return (
+                        <li key={e.id} className="h-full">
+                          {e.latest_report_id
+                            ? <Link to={`/reports/${e.latest_report_id}`} aria-label={`View latest report for ${e.name}`}
+                                className="group block h-full rounded-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">{card}</Link>
+                            : card}
+                        </li>
+                      );
+                    })}
                   </ul>
                   <Pagination pagination={data.pagination} onPage={(p) => setQuery({ page: p })} />
                 </>

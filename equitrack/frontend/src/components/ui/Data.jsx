@@ -177,7 +177,7 @@ export function Timeline({ history = [] }) {
           <span className={`absolute -left-[2.2rem] top-1 h-4 w-4 rounded-full ring-4 ring-surface-raised ${DOT[h.new_status] || 'bg-muted'}`} aria-hidden="true" />
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={h.new_status} />
-            {i === history.length - 1 && <span className="text-tiny font-semibold uppercase tracking-wide text-accent">Current</span>}
+            {i === history.length - 1 && <span className="text-tiny font-semibold tracking-wide text-accent">Current</span>}
           </div>
           <p className="mt-1 text-tiny text-muted">{formatDateTime(h.created_at)} · {h.changed_by_name}</p>
           {h.remarks && <p className="mt-1.5 rounded-xl bg-surface-sunken px-3 py-2 text-small text-neutral-200">{h.remarks}</p>}

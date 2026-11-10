@@ -7,7 +7,7 @@ import Button from '../components/ui/Button.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { validateLogin } from '../lib/validators.js';
-import { homePathFor } from '../lib/constants.js';
+import { hasRole, homePathFor } from '../lib/constants.js';
 import { ApiError } from '../lib/api.js';
 
 export default function Login() {
@@ -15,13 +15,16 @@ export default function Login() {
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const destinationFor = (account) => hasRole(account, 'admin')
+    ? homePathFor(account)
+    : location.state?.from || homePathFor(account);
   const [values, setValues] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [busy, setBusy] = useState(false);
 
   // already signed in? go to your home page
-  if (ready && user) return <Navigate to={location.state?.from || homePathFor(user)} replace />;
+  if (ready && user) return <Navigate to={destinationFor(user)} replace />;
 
   const set = (k) => (e) => { setValues((v) => ({ ...v, [k]: e.target.value })); setErrors((x) => ({ ...x, [k]: undefined })); };
 
@@ -35,7 +38,7 @@ export default function Login() {
     try {
       const u = await login(values.email.trim(), values.password);
       toast.success(`Welcome back, ${u.first_name}!`);
-      navigate(location.state?.from || homePathFor(u), { replace: true });
+      navigate(destinationFor(u), { replace: true });
     } catch (err) {
       if (err instanceof ApiError && err.status === 422) setErrors(err.errors);
       else setFormError(err.message);

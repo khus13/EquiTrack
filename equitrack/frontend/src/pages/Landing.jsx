@@ -23,7 +23,7 @@ export default function Landing() {
       <section className="bg-black">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:py-20">
           <div>
-            <p className="mb-3 font-display text-small font-semibold uppercase tracking-widest text-secondary-300">University of San Carlos · Talamban</p>
+            <p className="mb-3 font-display text-small font-semibold tracking-widest text-secondary-300">University of San Carlos · Talamban</p>
             <h1 className="text-display">Your digital <span className="text-white">equipment</span> tracking system.</h1>
             <p className="mt-5 max-w-lg text-h3 font-normal text-neutral-300">Spotted something broken on campus? Report it in a minute and watch it get fixed.</p>
             <div className="mt-8 flex flex-wrap gap-4">
@@ -67,7 +67,7 @@ export default function Landing() {
 
       {/* how it works */}
       <section className="page py-16">
-        <h2 className="mb-8 text-center">How it works</h2>
+        <h2 className="mb-8 text-center">How It Works</h2>
         <ol className="grid gap-6 md:grid-cols-3">
           {STEPS.map((s, i) => (
             <li key={s.title} className="card">
@@ -82,9 +82,9 @@ export default function Landing() {
       <section className="bg-black">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-12 text-center sm:px-6">
           <IconSearch className="h-8 w-8 text-accent" />
-          <h2>Looking for a specific item?</h2>
+          <h2>Looking for a Specific Item?</h2>
           <p className="max-w-xl text-muted">Browse the equipment directory by campus, building, category and type to see what is working and what needs repair.</p>
-          <Button to={user ? '/directory' : '/login'} variant="accent">Open the directory</Button>
+          <Button to="/directory" variant="accent">Open the directory</Button>
         </div>
       </section>
     </>
