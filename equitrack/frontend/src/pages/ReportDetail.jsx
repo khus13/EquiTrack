@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { useApi } from '../hooks/useApi.js';
 import { api, imageUrl, publicReportImageUrl, ApiError } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -11,7 +11,7 @@ import { Breadcrumbs, Timeline } from '../components/ui/Data.jsx';
 import { StatusBadge, PriorityTag } from '../components/ui/Badges.jsx';
 import { ErrorState, Skeleton, Alert } from '../components/ui/Feedback.jsx';
 import { Modal } from '../components/ui/Modal.jsx';
-import { Select, TextInput, Textarea } from '../components/ui/Form.jsx';
+import { Select, TextInput, Textarea, FileUpload } from '../components/ui/Form.jsx';
 import LocationSelects from '../components/LocationSelects.jsx';
 import Button from '../components/ui/Button.jsx';
 import { IconCheck, IconWrench, IconRefresh, IconImage, IconEdit } from '../components/ui/Icons.jsx';
@@ -20,6 +20,7 @@ import { IconCheck, IconWrench, IconRefresh, IconImage, IconEdit } from '../comp
 export default function ReportDetail() {
   const { id } = useParams();
   const { pathname } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { meta } = useMeta();
   const toast = useToast();
@@ -47,6 +48,7 @@ export default function ReportDetail() {
   const [imgFailed, setImgFailed] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editValues, setEditValues] = useState({});
+  const [editPhoto, setEditPhoto] = useState(null);
   const [editErrors, setEditErrors] = useState({});
   const [editError, setEditError] = useState('');
   const [editBusy, setEditBusy] = useState(false);
@@ -71,7 +73,7 @@ export default function ReportDetail() {
     } finally { setBusy(false); }
   };
 
-  const openEdit = () => {
+  const openEdit = useCallback(() => {
     setEditValues({
       item_name: r.item_name,
       category_id: String(r.category_id),
@@ -85,8 +87,16 @@ export default function ReportDetail() {
     });
     setEditErrors({});
     setEditError('');
+    setEditPhoto(null);
     setEditing(true);
-  };
+  }, [r]);
+  useEffect(() => {
+    if (!r || !canEdit || searchParams.get('edit') !== '1') return;
+    openEdit();
+    const next = new URLSearchParams(searchParams);
+    next.delete('edit');
+    setSearchParams(next, { replace: true });
+  }, [r, canEdit, searchParams, setSearchParams, openEdit]);
   const patchEdit = (patch) => {
     setEditValues((values) => ({ ...values, ...patch }));
     setEditErrors((errors) => {
@@ -100,7 +110,20 @@ export default function ReportDetail() {
     setEditError('');
     try {
       const res = await api.withMessage.patch(`/reports/${id}`, editValues);
+      if (editPhoto) {
+        const form = new FormData();
+        form.append('photo', editPhoto);
+        try {
+          await api.withMessage.postForm(`/reports/${id}/images`, form);
+        } catch (uploadError) {
+          if (uploadError instanceof ApiError && uploadError.status === 422) setEditErrors(uploadError.errors);
+          setEditError(`Report details were saved, but the photo could not be uploaded: ${uploadError.message}`);
+          reload();
+          return;
+        }
+      }
       toast.success(res.message);
+      setEditPhoto(null);
       setEditing(false);
       reload();
     } catch (e) {
@@ -273,7 +296,9 @@ export default function ReportDetail() {
           </div>
           <Textarea label="Description" required maxLength={2000} value={editValues.description || ''} error={editErrors.description}
             onChange={(e) => patchEdit({ description: e.target.value })} />
-          <p className="text-small text-muted">Photos cannot be changed here; contact an administrator if a report photo needs replacing.</p>
+          <FileUpload file={editPhoto} onChange={(file) => { setEditPhoto(file); setEditErrors((errors) => ({ ...errors, photo: undefined })); }}
+            error={editErrors.photo}
+            hint="Add an additional JPG or PNG photo, up to 2 MB. Existing photos are kept." />
         </div>
       </Modal>
     </div>

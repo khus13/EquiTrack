@@ -1,28 +1,30 @@
 import { useState } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import Logo from './Logo.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { homePathFor, ROLE_LABEL } from '../../lib/constants.js';
-import { IconUser, IconLogout, IconMenu, IconClose, IconChevronLeft, IconHome } from '../ui/Icons.jsx';
+import { IconUser, IconLogout, IconMenu, IconClose, IconChevronLeft, IconHome, IconChevronDown } from '../ui/Icons.jsx';
 
 /**
  * Black sidebar (Account / Admin / Super Admin screens).
  * sections: [{ title?, items: [{ to, label, icon, end?, sub? }] }]
  * On phones it becomes a slide-down menu under a slim top bar.
  */
-export default function Sidebar({ sections, backTo, showLogo = true }) {
+export default function Sidebar({ sections, backTo, showLogo = true, showHome = true }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState({});
 
   const item = ({ isActive }) =>
     `flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition ${isActive ? 'bg-white/10 text-accent' : 'text-white hover:bg-white/5'}`;
 
   const content = (
     <div className="flex h-full flex-col gap-6 px-4 py-5">
-      <Link to={homePathFor(user)} aria-label="Home" title="Home" className="flex h-10 w-10 items-center justify-center rounded-xl text-white hover:bg-white/10 hover:text-accent">
+      {showHome && <Link to={homePathFor(user)} aria-label="Home" title="Home" className="flex h-10 w-10 items-center justify-center rounded-xl text-white hover:bg-white/10 hover:text-accent">
         <IconHome className="h-5 w-5" />
-      </Link>
+      </Link>}
       {backTo && (
         <Link to={backTo} className="flex items-center gap-2 font-display font-semibold hover:text-accent"><IconChevronLeft /> Back</Link>
       )}
@@ -43,10 +45,33 @@ export default function Sidebar({ sections, backTo, showLogo = true }) {
             <ul className="space-y-1">
               {s.items.map((it) => (
                 <li key={it.to}>
-                  <NavLink to={it.to} end={it.end} onClick={() => setOpen(false)} className={item}>
-                    {it.icon && <it.icon className="h-5 w-5 shrink-0" />}
-                    <span>{it.label}</span>
-                  </NavLink>
+                  {it.children ? (
+                    <>
+                      <button type="button" onClick={() => setExpanded((value) => ({ ...value, [it.to]: !value[it.to] }))}
+                        aria-expanded={!!expanded[it.to] || it.children.some((child) => location.pathname === child.to)}
+                        className={`${item({ isActive: it.children.some((child) => location.pathname === child.to) })} w-full`}>
+                        {it.icon && <it.icon className="h-5 w-5 shrink-0" />}
+                        <span className="flex-1 text-left">{it.label}</span>
+                        <IconChevronDown className={`h-4 w-4 transition-transform ${expanded[it.to] || it.children.some((child) => location.pathname === child.to) ? 'rotate-180' : ''}`} />
+                      </button>
+                      {(expanded[it.to] || it.children.some((child) => location.pathname === child.to)) && (
+                        <ul className="ml-6 mt-1 space-y-1 border-l border-white/10 pl-3">
+                          {it.children.map((child) => (
+                            <li key={child.to}>
+                              <NavLink to={child.to} end={child.end} onClick={() => setOpen(false)} className={item}>
+                                <span>{child.label}</span>
+                              </NavLink>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  ) : (
+                    <NavLink to={it.to} end={it.end} onClick={() => setOpen(false)} className={item}>
+                      {it.icon && <it.icon className="h-5 w-5 shrink-0" />}
+                      <span>{it.label}</span>
+                    </NavLink>
+                  )}
                 </li>
               ))}
             </ul>

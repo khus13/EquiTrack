@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import SelectControl from '../components/ui/SelectControl.jsx';
 import { useApi } from '../hooks/useApi.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useListQuery, useSearchBox } from '../hooks/useListQuery.js';
 import { api, equipmentImageUrl } from '../lib/api.js';
 import { useMeta } from '../context/MetaContext.jsx';
 import { EQUIPMENT_STATUS_LABEL } from '../lib/constants.js';
+import { homePathFor } from '../lib/constants.js';
 import { Breadcrumbs, Pagination } from '../components/ui/Data.jsx';
 import { EquipmentStatusBadge } from '../components/ui/Badges.jsx';
 import { EmptyState, ErrorState, CardSkeleton } from '../components/ui/Feedback.jsx';
@@ -38,6 +41,7 @@ function Chips({ title, items, field, query, setQuery }) {
 
 /** Equipment directory: search + filters by category, campus, building, type and status. */
 export default function Directory() {
+  const { user } = useAuth();
   const { meta } = useMeta();
   const { query, setQuery, reset } = useListQuery({ q: '', category_id: '', campus_id: '', building_id: '', type_id: '', status: '', page: 1 });
   const [text, setText] = useSearchBox(query, setQuery);
@@ -68,7 +72,7 @@ export default function Directory() {
 
   return (
     <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
-      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Equipment directory' }]} />
+      <Breadcrumbs items={[{ label: 'Home', to: user ? homePathFor(user) : '/' }, { label: 'Equipment directory' }]} />
       <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
         {/* ---------- filters ---------- */}
         <aside aria-label="Filters" className="lg:sticky lg:top-24 lg:h-fit">
@@ -87,17 +91,25 @@ export default function Directory() {
           <Chips query={query} setQuery={setQuery} title="Building" field="building_id" items={buildings.map((b) => ({ value: b.id, label: b.name }))} />
           <fieldset className="mb-6">
             <legend className="mb-2 font-display text-h3 text-secondary-300">Type</legend>
-            <select aria-label="Equipment type" value={query.type_id} onChange={(e) => setQuery({ type_id: e.target.value })} className="input py-2.5">
-              <option value="">All types</option>
-              {types.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
+            <SelectControl
+              aria-label="Equipment type"
+              value={query.type_id}
+              onChange={(event) => setQuery({ type_id: event.target.value })}
+              options={types.map((type) => ({ value: type.id, label: type.name }))}
+              placeholder="All types"
+              className="py-2.5"
+            />
           </fieldset>
           <fieldset>
             <legend className="mb-2 font-display text-h3 text-secondary-300">Status</legend>
-            <select aria-label="Equipment status" value={query.status} onChange={(e) => setQuery({ status: e.target.value })} className="input py-2.5">
-              <option value="">All statuses</option>
-              {Object.entries(EQUIPMENT_STATUS_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
+            <SelectControl
+              aria-label="Equipment status"
+              value={query.status}
+              onChange={(event) => setQuery({ status: event.target.value })}
+              options={Object.entries(EQUIPMENT_STATUS_LABEL).map(([value, label]) => ({ value, label }))}
+              placeholder="All statuses"
+              className="py-2.5"
+            />
           </fieldset>
           </div>
         </aside>

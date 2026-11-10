@@ -4,7 +4,6 @@ import { api } from '../../lib/api.js';
 import { PageHeader, StatCard } from '../../components/ui/Data.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../../components/ui/Feedback.jsx';
 import { PriorityTag, StatusBadge } from '../../components/ui/Badges.jsx';
-import Button from '../../components/ui/Button.jsx';
 import ReportRow from '../../components/ReportRow.jsx';
 import { IconClock, IconWrench, IconCheck, IconAlert, IconCheck as IconDone } from '../../components/ui/Icons.jsx';
 import { placeOf, timeAgo } from '../../lib/format.js';
@@ -15,8 +14,7 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <PageHeader title="Admin dashboard" subtitle="Everything that needs attention on campus."
-        actions={<><Button to="/reports/new" variant="outline">File a report</Button><Button to="/admin/reports">All reports</Button></>} />
+      <PageHeader title="Admin dashboard" subtitle="Everything that needs attention on campus." />
 
       {error ? <ErrorState message={error.message} onRetry={reload} /> : (
         <>
@@ -32,7 +30,6 @@ export default function AdminDashboard() {
             <section aria-labelledby="repair-h" className="card">
               <div className="mb-4 flex items-center justify-between">
                 <h2 id="repair-h" className="text-h3">To Repair <span className="text-muted">· most urgent first</span></h2>
-                <Link to="/admin/reports?sort=priority&dir=asc" className="link text-small">See all</Link>
               </div>
               {loading ? <div className="space-y-3">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
                 : data.to_repair.length === 0
@@ -58,7 +55,6 @@ export default function AdminDashboard() {
             <section aria-labelledby="recent-h" className="card">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <h2 id="recent-h" className="text-h3">Latest Reports</h2>
-                <Link to="/admin/reports" className="link text-small">View all reports</Link>
               </div>
               {loading ? <div className="space-y-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-20 w-full rounded-2xl" />)}</div>
                 : data.recent.length === 0 ? <EmptyState title="No reports yet" />

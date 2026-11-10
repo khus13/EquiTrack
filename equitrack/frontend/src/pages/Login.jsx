@@ -47,7 +47,7 @@ export default function Login() {
 
   return (
     <AuthShell>
-      <Link to="/" aria-label="EquiTrack home"><img src="/logo.png" alt="EquiTrack" className="h-32 w-auto sm:h-40" /></Link>
+      <Link to={user ? homePathFor(user) : '/'} aria-label="EquiTrack home"><img src="/logo.png" alt="EquiTrack" className="h-32 w-auto sm:h-40" /></Link>
       <p className="mb-8 mt-4 text-center font-display text-h3 font-normal uppercase tracking-wide text-neutral-300">Your digital equipment tracking system</p>
 
       <form onSubmit={submit} noValidate className="w-full max-w-md space-y-5" aria-label="Log in">

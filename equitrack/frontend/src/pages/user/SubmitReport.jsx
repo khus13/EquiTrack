@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Select, TextInput, Textarea, FileUpload } from '../../components/ui/Form.jsx';
 import { Alert } from '../../components/ui/Feedback.jsx';
 import { Breadcrumbs } from '../../components/ui/Data.jsx';
@@ -23,6 +23,7 @@ export default function SubmitReport() {
   const { meta, loading: metaLoading, error: metaError } = useMeta();
   const toast = useToast();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [params] = useSearchParams();
   const [values, setValues] = useState(EMPTY);
   const [photo, setPhoto] = useState(null);
@@ -32,6 +33,9 @@ export default function SubmitReport() {
 
   // Coming from the directory ("Report a problem" button)? Pre-fill from that equipment.
   const equipmentId = params.get('equipment');
+  const isStaffView = pathname.startsWith('/admin/');
+  const homeLabel = isStaffView ? 'Admin dashboard' : 'Dashboard';
+  const homePath = isStaffView ? '/admin' : '/dashboard';
 
   useEffect(() => {
     if (!equipmentId) return;
@@ -60,7 +64,7 @@ export default function SubmitReport() {
       const res = await api.withMessage.postForm('/reports', form);
       notifyReportSubmitted();
       toast.success(`Report ${res.data.reference_no} submitted. Thank you!`);
-      navigate(`/reports/${res.data.id}`);
+      navigate(`${isStaffView ? '/admin/reports' : '/reports'}/${res.data.id}`);
     } catch (err) {
       if (err instanceof ApiError && err.status === 422) { setErrors(err.errors); setFormError(err.message); }
       else setFormError(err.message);
@@ -69,7 +73,7 @@ export default function SubmitReport() {
 
   return (
     <div className="page max-w-4xl">
-      <Breadcrumbs items={[{ label: 'Dashboard', to: '/dashboard' }, { label: 'File a report' }]} />
+      <Breadcrumbs items={[{ label: homeLabel, to: homePath }, { label: 'File a report' }]} />
       <div className="card sm:p-10">
         <h1>Fill out form</h1>
         <p className="mt-4 font-display font-semibold text-secondary-300">Reporting a repair?</p>

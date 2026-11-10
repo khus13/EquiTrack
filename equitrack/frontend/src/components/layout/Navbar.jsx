@@ -24,6 +24,7 @@ export default function Navbar() {
 
   const doLogout = async () => { setMenu(false); setMobile(false); await logout(); navigate('/'); };
   const link = ({ isActive }) => `rounded-pill px-3 py-1.5 font-display font-semibold hover:text-accent ${isActive ? 'text-accent' : 'text-white'}`;
+  const reportFormPath = user && hasRole(user, 'admin') ? '/admin/reports/new' : '/reports/new';
 
   return (
     <header className="sticky top-0 z-40 border-b border-surface-line bg-surface-nav">
@@ -38,7 +39,7 @@ export default function Navbar() {
             <>
               <NavLink to={homePathFor(user)} className={link}>Home</NavLink>
               <span aria-hidden="true" className="mx-1 h-6 border-l border-white/15" />
-              <NavLink to="/reports/new" className={link}>File a report</NavLink>
+              <NavLink to={reportFormPath} className={link}>File a report</NavLink>
               <span aria-hidden="true" className="mx-1 h-6 border-l border-white/15" />
               {!hasRole(user, 'admin') && <NavLink to="/directory" className={link}>Directory</NavLink>}
               {!hasRole(user, 'admin') && <span aria-hidden="true" className="mx-1 h-6 border-l border-white/15" />}
@@ -57,7 +58,8 @@ export default function Navbar() {
                     </div>
                     <MenuLink to={homePathFor(user)} icon={IconGrid} onClick={() => setMenu(false)}>Dashboard</MenuLink>
                     <MenuLink to={hasRole(user, 'admin') ? '/admin/reports' : '/reports'} icon={IconClipboard} onClick={() => setMenu(false)}>{hasRole(user, 'admin') ? 'All reports' : 'My reports'}</MenuLink>
-                    <MenuLink to="/account" icon={IconCog} onClick={() => setMenu(false)}>Account</MenuLink>
+                    <MenuLink to="/account" icon={IconUser} onClick={() => setMenu(false)}>Profile info</MenuLink>
+                    <MenuLink to="/account/security" icon={IconCog} onClick={() => setMenu(false)}>Password &amp; security</MenuLink>
                     <button type="button" role="menuitem" onClick={doLogout} className="flex w-full items-center gap-3 px-4 py-3 text-left text-danger-light hover:bg-white/5"><IconLogout />Log out</button>
                   </div>
                 )}
@@ -65,6 +67,8 @@ export default function Navbar() {
             </>
           ) : (
             <>
+              <NavLink to="/" className={link}>Home</NavLink>
+              <span aria-hidden="true" className="mx-1 h-6 border-l border-white/15" />
               <NavLink to="/directory" className={link}>Directory</NavLink>
               <span aria-hidden="true" className="mx-1 h-6 border-l border-white/15" />
               <NavLink to="/faqs" className={link}>FAQs</NavLink>
@@ -87,15 +91,17 @@ export default function Navbar() {
             {user ? (
               <>
                 <li><Link to={homePathFor(user)} onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">Home</Link></li>
-                <li><NavLink to="/reports/new" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2 text-primary">File a report</NavLink></li>
+                <li><NavLink to={reportFormPath} onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2 text-primary">File a report</NavLink></li>
                 <li><Link to={hasRole(user, 'admin') ? '/admin/reports' : '/reports'} onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">{hasRole(user, 'admin') ? 'All reports' : 'My reports'}</Link></li>
                 {!hasRole(user, 'admin') && <li><Link to="/directory" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">Directory</Link></li>}
-                <li><Link to="/account" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">Account</Link></li>
+                <li><Link to="/account" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">Profile info</Link></li>
+                <li><Link to="/account/security" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">Password &amp; security</Link></li>
                 <li><Link to="/faqs" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">FAQs</Link></li>
                 <li><button type="button" onClick={doLogout} className="block w-full rounded-xl px-3 py-2 text-left text-danger-light">Log out</button></li>
               </>
             ) : (
               <>
+                <li><Link to="/" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">Home</Link></li>
                 <li><Link to="/directory" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">Directory</Link></li>
                 <li><Link to="/login" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2">Log in</Link></li>
                 <li><Link to="/register" onClick={() => setMobile(false)} className="block rounded-xl px-3 py-2 text-primary">Sign up</Link></li>

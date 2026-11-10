@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi.js';
 import { useListQuery, useSearchBox } from '../../hooks/useListQuery.js';
 import { api } from '../../lib/api.js';
@@ -10,10 +9,9 @@ import { hasRole } from '../../lib/constants.js';
 import { PageHeader, SearchFilterBar, FilterSelect, Pagination } from '../../components/ui/Data.jsx';
 import { ConfirmDialog } from '../../components/ui/Modal.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../../components/ui/Feedback.jsx';
-import Button from '../../components/ui/Button.jsx';
 import ReportRow from '../../components/ReportRow.jsx';
 import { STATUSES } from '../../lib/constants.js';
-import { IconClipboard, IconTrash, IconPlus, IconEye } from '../../components/ui/Icons.jsx';
+import { IconClipboard, IconTrash } from '../../components/ui/Icons.jsx';
 
 export default function MyReports() {
   const toast = useToast();
@@ -31,7 +29,13 @@ export default function MyReports() {
 
   const confirmDelete = async () => {
     setDeleting(true);
-    try { await api.del(`/reports/${toDelete.id}`); toast.success('Report deleted.'); setToDelete(null); reload(); }
+    try {
+      await api.del(`/reports/${toDelete.id}`);
+      toast.success('Report deleted.');
+      setToDelete(null);
+      if (data?.items.length === 1 && query.page > 1) setQuery({ page: query.page - 1 });
+      else reload();
+    }
     catch (e) { toast.error(e.message); }
     finally { setDeleting(false); }
   };
@@ -41,7 +45,7 @@ export default function MyReports() {
     <div className="page">
       <PageHeader title={isAdmin ? 'All reports' : 'My reports'} subtitle={isAdmin ? 'Browse and follow every submitted report.' : 'Browse and follow the reports you filed.'}
         breadcrumbs={[{ label: 'Dashboard', to: isAdmin ? '/admin' : '/dashboard' }, { label: isAdmin ? 'All reports' : 'My reports' }]}
-        actions={<Button to="/reports/new"><IconPlus className="h-5 w-5" /> New report</Button>} />
+      />
 
       <SearchFilterBar value={search} onChange={setSearch} placeholder="Search your reports…" showReset={!!filtered}
         onReset={() => { setSearch(''); reset(); }}>
@@ -53,16 +57,13 @@ export default function MyReports() {
         : data.items.length === 0
           ? <EmptyState icon={IconClipboard} title={filtered ? 'No matching reports' : 'No reports yet'}
               hint={filtered ? 'Try a different search or clear the filters.' : 'Reports you file will show up here with their status.'}
-              action={!filtered && <Button to="/reports/new">File a report</Button>} />
+              />
           : (
             <>
               <ul className="space-y-3">
                 {data.items.map((r) => (
                   <ReportRow key={r.id} report={r} actions={<>
-                    <Link to={`/reports/${r.id}`} className="rounded-full p-2 text-muted hover:bg-white/10 hover:text-white" aria-label={`View ${r.item_name}`}><IconEye /></Link>
-                    {!isAdmin && r.status === 'Pending' && (
-                      <button type="button" onClick={() => setToDelete(r)} className="rounded-full p-2 text-danger-light hover:bg-danger/20" aria-label={`Delete ${r.item_name}`}><IconTrash /></button>
-                    )}
+                    <button type="button" onClick={() => setToDelete(r)} className="rounded-full p-2 text-danger-light hover:bg-danger/20" aria-label={`Delete ${r.item_name}`}><IconTrash /></button>
                   </>} />
                 ))}
               </ul>
@@ -71,7 +72,7 @@ export default function MyReports() {
           )}
 
       <ConfirmDialog open={!!toDelete} onClose={() => setToDelete(null)} danger loading={deleting} confirmLabel="Delete report"
-        title="Delete this report?" message={`“${toDelete?.item_name}” will be removed permanently. Only Pending reports can be deleted.`} onConfirm={confirmDelete} />
+        title="Delete this report?" message={`“${toDelete?.item_name}” will be removed permanently and cannot be recovered.`} onConfirm={confirmDelete} />
     </div>
   );
 }

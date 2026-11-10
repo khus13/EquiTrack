@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { IconAlert, IconEye, IconEyeOff, IconImage, IconClose } from './Icons.jsx';
 import { imageProblem } from '../../lib/validators.js';
+import SelectControl from './SelectControl.jsx';
 
 /**
  * Field = label + control + inline error + hint.
@@ -62,10 +63,13 @@ export function Select({ label, error, hint, required, options = [], placeholder
   return (
     <Field label={label} error={error} hint={hint} required={required} className={className}>
       {(a11y) => (
-        <select className={cls(error)} {...a11y} {...rest}>
-          {placeholder !== undefined && <option value="">{placeholder}</option>}
-          {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+        <SelectControl
+          options={options}
+          placeholder={placeholder}
+          className={error ? 'input-error' : ''}
+          {...a11y}
+          {...rest}
+        />
       )}
     </Field>
   );

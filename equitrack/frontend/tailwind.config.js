@@ -62,9 +62,9 @@ export default {
       },
       // Type scale: display (hero) > h1 > h2 > h3 > body > small > tiny
       fontSize: {
-        tiny: ['0.75rem', { lineHeight: '1rem' }],
-        small: ['0.875rem', { lineHeight: '1.25rem' }],
-        body: ['1rem', { lineHeight: '1.5rem' }],
+        tiny: ['0.8125rem', { lineHeight: '1.125rem' }],
+        small: ['0.9375rem', { lineHeight: '1.375rem' }],
+        body: ['1.0625rem', { lineHeight: '1.625rem' }],
         h3: ['1.25rem', { lineHeight: '1.75rem', fontWeight: '600' }],
         h2: ['1.625rem', { lineHeight: '2rem', fontWeight: '700' }],
         h1: ['2.125rem', { lineHeight: '2.5rem', fontWeight: '800' }],

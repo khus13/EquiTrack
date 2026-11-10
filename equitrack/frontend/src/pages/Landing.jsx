@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { api } from '../lib/api.js';
-import { homePathFor } from '../lib/constants.js';
 import { num } from '../lib/format.js';
 import Button from '../components/ui/Button.jsx';
 import { IconClipboard, IconSearch, IconCheck, IconWrench } from '../components/ui/Icons.jsx';
@@ -26,19 +25,10 @@ export default function Landing() {
             <p className="mb-3 font-display text-small font-semibold tracking-widest text-secondary-300">University of San Carlos · Talamban</p>
             <h1 className="text-display">Your digital <span className="text-white">equipment</span> tracking system.</h1>
             <p className="mt-5 max-w-lg text-h3 font-normal text-neutral-300">Spotted something broken on campus? Report it in a minute and watch it get fixed.</p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              {user ? (
-                <>
-                  <Button to="/reports/new" size="lg">File a report</Button>
-                  <Button to={homePathFor(user)} variant="outline" size="lg">Go to dashboard</Button>
-                </>
-              ) : (
-                <>
-                  <Button to="/register" size="lg">Get started</Button>
-                  <Button to="/login" variant="outline" size="lg">Log in</Button>
-                </>
-              )}
-            </div>
+            {!user && <div className="mt-8 flex flex-wrap gap-4">
+              <Button to="/register" size="lg">Get started</Button>
+              <Button to="/login" variant="outline" size="lg">Log in</Button>
+            </div>}
           </div>
           <div className="relative overflow-hidden rounded-[2rem]">
             <img src="https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=1000&q=70" alt="" loading="lazy"

@@ -10,6 +10,8 @@ import Button from './Button.jsx';
 export function Modal({ open, onClose, title, children, footer, size = 'md' }) {
   const ref = useRef(null);
   const opener = useRef(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return undefined;
@@ -21,7 +23,7 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }) {
     (first || ref.current)?.focus();
 
     const onKey = (e) => {
-      if (e.key === 'Escape') { e.stopPropagation(); onClose(); }
+      if (e.key === 'Escape') { e.stopPropagation(); onCloseRef.current(); }
       if (e.key === 'Tab') {                       // keep focus inside the dialog
         const list = Array.from(focusables());
         if (!list.length) return;
@@ -36,19 +38,19 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }) {
       document.body.style.overflow = '';
       opener.current?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
   const width = { sm: 'max-w-md', md: 'max-w-xl', lg: 'max-w-3xl' }[size];
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onCloseRef.current(); }}>
       <div ref={ref} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}
            className={`flex max-h-[92vh] w-full ${width} flex-col rounded-t-3xl bg-surface-raised shadow-card sm:rounded-3xl`}>
         <div className="flex items-center justify-between gap-4 border-b border-surface-line px-6 py-4">
           <h2 className="text-h3">{title}</h2>
-          <button type="button" onClick={onClose} className="rounded-full p-1.5 text-muted hover:bg-white/10 hover:text-white" aria-label="Close dialog"><IconClose /></button>
+          <button type="button" onClick={() => onCloseRef.current()} className="rounded-full p-1.5 text-muted hover:bg-white/10 hover:text-white" aria-label="Close dialog"><IconClose /></button>
         </div>
-        <div className="overflow-y-auto px-6 py-5">{children}</div>
+        <div className="select-menu-scrollbar overflow-y-auto px-6 py-5">{children}</div>
         {footer && <div className="flex flex-wrap justify-end gap-3 border-t border-surface-line px-6 py-4">{footer}</div>}
       </div>
     </div>,

@@ -32,6 +32,7 @@ export default function DirectoryManage() {
   const [formError, setFormError] = useState('');
   const [busy, setBusy] = useState(false);
   const [toDelete, setToDelete] = useState(null);
+  const [deletedIds, setDeletedIds] = useState([]);
 
   const patch = (p) => { setForm((f) => ({ ...f, ...p })); setErrors((e) => { const n = { ...e }; Object.keys(p).forEach((k) => delete n[k]); return n; }); };
   const openForm = (e) => {
@@ -50,8 +51,16 @@ export default function DirectoryManage() {
   };
   const remove = async () => {
     setBusy(true);
-    try { await api.del(`/equipment/${toDelete.id}`); toast.success('Equipment deleted.'); setToDelete(null); reload(); }
-    catch (e) { toast.error(e.message); setToDelete(null); }
+    try {
+      const removedId = toDelete.id;
+      await api.del(`/equipment/${removedId}`);
+      setDeletedIds((ids) => [...ids, removedId]);
+      toast.success('Equipment deleted.');
+      setToDelete(null);
+      if (data?.items.length === 1 && query.page > 1) setQuery({ page: query.page - 1 });
+      else reload();
+    }
+    catch (e) { toast.error(e.message); setToDelete(null); reload(); }
     finally { setBusy(false); }
   };
 
@@ -80,7 +89,7 @@ export default function DirectoryManage() {
         <FilterSelect label="Campus" placeholder="All campuses" value={query.campus_id} onChange={(v) => setQuery({ campus_id: v })} options={meta.campuses.map((c) => ({ value: c.id, label: c.name }))} />
         <FilterSelect label="Condition" placeholder="Any condition" value={query.status} onChange={(v) => setQuery({ status: v })} options={Object.entries(EQUIPMENT_STATUS_LABEL).map(([value, label]) => ({ value, label }))} />
       </SearchFilterBar>
-      <DataTable caption="Equipment" columns={columns} rows={data?.items} loading={loading} error={error} onRetry={reload}
+      <DataTable caption="Equipment" columns={columns} rows={data?.items?.filter((item) => !deletedIds.includes(Number(item.id)))} loading={loading} error={error} onRetry={reload}
         empty={<EmptyState icon={IconBox} title="No equipment found" hint={filtered ? 'Try clearing a filter.' : 'Add the first item with the button above.'} />} />
       <Pagination pagination={data?.pagination} onPage={(p) => setQuery({ page: p })} />
 

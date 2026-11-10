@@ -21,6 +21,7 @@ export function AppLayout() {
 /** Account pages (screenshots): sidebar with Back / Account / My Reports. */
 export function AccountLayout() {
   const { user } = useAuth();
+  if (hasRole(user, 'admin')) return <StaffLayout />;
   const sections = [
     { items: [
       { to: '/account', label: 'Profile info', icon: IconUser, end: true },
@@ -28,7 +29,7 @@ export function AccountLayout() {
     ] },
     { items: [{ to: '/reports', label: hasRole(user, 'admin') ? 'All reports' : 'My reports', icon: IconClipboard, end: true }] },
   ];
-  return <PanelShell sidebar={<Sidebar sections={sections} backTo="/dashboard" showLogo={false} />} />;
+  return <PanelShell sidebar={<Sidebar sections={sections} backTo="/dashboard" />} />;
 }
 
 /** Admin + Super Admin panel: sidebar content depends on the role. */
@@ -37,8 +38,8 @@ export function StaffLayout() {
   const sections = [
     { title: 'Admin', items: [
       { to: '/admin', label: 'Dashboard', icon: IconGrid, end: true },
-      { to: '/reports/new', label: 'File a report', icon: IconPlus },
-      { to: '/admin/reports', label: 'All reports', icon: IconClipboard },
+      { to: '/admin/reports/new', label: 'File a report', icon: IconPlus, end: true },
+      { to: '/admin/reports', label: 'All reports', icon: IconClipboard, end: true },
     ] },
   ];
   if (hasRole(user, 'super_admin')) {
@@ -50,10 +51,11 @@ export function StaffLayout() {
       { to: '/super-admin/audit', label: 'Audit logs', icon: IconShield },
     ] });
   }
-  sections.push({ items: [
-    { to: '/account', label: 'My account', icon: IconCog },
+  sections.push({ title: 'Account', items: [
+    { to: '/account', label: 'Profile info', icon: IconUser, end: true },
+    { to: '/account/security', label: 'Password & security', icon: IconCog },
   ] });
-  return <PanelShell sidebar={<Sidebar sections={sections} />} />;
+  return <PanelShell sidebar={<Sidebar sections={sections} showHome={false} />} />;
 }
 
 function PanelShell({ sidebar }) {
@@ -61,7 +63,7 @@ function PanelShell({ sidebar }) {
     <div className="flex min-h-screen flex-col lg:flex-row">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-[200] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-ink">Skip to content</a>
       {sidebar}
-      <main id="main" className="min-w-0 flex-1 px-4 py-8 sm:px-8"><div className="mx-auto max-w-6xl"><Outlet /></div></main>
+      <main id="main" className="min-w-0 flex-1 px-4 py-8 sm:px-8"><div className="mx-auto max-w-7xl"><Outlet /></div></main>
     </div>
   );
 }

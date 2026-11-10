@@ -43,7 +43,7 @@ export default function Register() {
   return (
     <AuthShell image={false}>
       <div className="w-full max-w-xl">
-        <Link to="/" aria-label="EquiTrack home" className="mb-2 inline-block"><img src="/logo.png" alt="EquiTrack" className="h-16 w-auto" /></Link>
+        <Link to={user ? homePathFor(user) : '/'} aria-label="EquiTrack home" className="mb-2 inline-block"><img src="/logo.png" alt="EquiTrack" className="h-16 w-auto" /></Link>
         <h1 className="text-center">Create account</h1>
         <p className="mb-8 mt-2 text-center font-display text-h3 font-semibold text-secondary-300">Let’s get started.</p>
 

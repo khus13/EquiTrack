@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { IconChevronLeft, IconChevronRight, IconSearch, IconClose, IconSort } from './Icons.jsx';
+import SelectControl from './SelectControl.jsx';
 import { TableSkeleton, EmptyState, ErrorState } from './Feedback.jsx';
 import { formatDateTime } from '../../lib/format.js';
 import { StatusBadge } from './Badges.jsx';
@@ -82,11 +83,15 @@ export function SearchFilterBar({ value, onChange, placeholder = 'Search…', ch
 /** Small <select> used inside SearchFilterBar. */
 export function FilterSelect({ label, value, onChange, options, placeholder }) {
   return (
-    <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value)}
-            className="input w-auto min-w-[9rem] py-2 text-small">
-      <option value="">{placeholder || label}</option>
-      {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-    </select>
+    <SelectControl
+      aria-label={label}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      options={options}
+      placeholder={placeholder || label}
+      className="min-w-[9rem] py-2 text-small"
+      containerClassName="w-auto min-w-[9rem]"
+    />
   );
 }
 

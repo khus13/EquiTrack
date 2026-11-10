@@ -71,6 +71,7 @@ export default function App() {
       <Route element={<ProtectedRoute role="admin" />}>
         <Route element={<StaffLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/reports/new" element={<SubmitReport />} />
           <Route path="/admin/reports" element={<ManageReports />} />
           <Route path="/admin/reports/:id" element={<ReportDetail />} />
         </Route>
