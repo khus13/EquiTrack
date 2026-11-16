@@ -41,6 +41,100 @@ class ReportController
         Response::ok($report);
     }
 
+    /** GET /api/public-reports/{id} */
+    public static function publicSummary(array $p): never
+    {
+        $report = Report::publicSummary((int) $p['id'])
+            ?? Response::error('Report not found.', 404);
+        Response::ok($report);
+    }
+
+    /** PATCH /api/reports/{id}   (owner or admin) */
+    public static function update(array $p): never
+    {
+        $id = (int) $p['id'];
+        $me = AuthMiddleware::user();
+        $report = Report::find($id) ?? Response::error('Report not found.', 404);
+        if ((int) $report['user_id'] !== (int) $me['id'] && !AuthMiddleware::atLeast('admin')) {
+            Response::error('You do not have permission to edit this report.', 403);
+        }
+
+        $data = [
+            'item_name'      => Validator::clean(Request::input('item_name')),
+            'category_id'    => Request::input('category_id'),
+            'campus_id'      => Request::input('campus_id'),
+            'building_id'    => Request::input('building_id'),
+            'room_id'        => Request::input('room_id'),
+            'location_note'  => Validator::clean(Request::input('location_note')),
+            'damage_type_id' => Request::input('damage_type_id'),
+            'description'    => Validator::clean(Request::input('description')),
+            'priority'       => (string) Request::input('priority', ''),
+        ];
+        $errors = Validator::check($data, [
+            'item_name'      => 'required|max:150',
+            'category_id'    => 'required|int',
+            'campus_id'      => 'required|int',
+            'building_id'    => 'required|int',
+            'room_id'        => 'required|int',
+            'damage_type_id' => 'required|int',
+            'description'    => 'required|min:10|max:2000',
+            'priority'       => 'required|in:' . implode(',', Report::PRIORITIES),
+            'location_note'  => 'max:190',
+        ]);
+
+        if (!isset($errors['category_id']) && !Reference::exists('categories', (int) $data['category_id'])) {
+            $errors['category_id'] = 'Select a valid category.';
+        }
+        if (!isset($errors['damage_type_id']) && !Reference::exists('damage_types', (int) $data['damage_type_id'])) {
+            $errors['damage_type_id'] = 'Select a valid damage type.';
+        }
+        if (!isset($errors['campus_id']) && !Reference::exists('campuses', (int) $data['campus_id'])) {
+            $errors['campus_id'] = 'Select a valid campus.';
+        }
+        if (!isset($errors['building_id']) && !isset($errors['campus_id'])
+            && !Database::value('SELECT 1 FROM buildings WHERE id = ? AND campus_id = ?', [(int) $data['building_id'], (int) $data['campus_id']])) {
+            $errors['building_id'] = 'That building is not on the selected campus.';
+        }
+        if (!isset($errors['room_id']) && !isset($errors['building_id'])
+            && !Database::value('SELECT 1 FROM rooms WHERE id = ? AND building_id = ?', [(int) $data['room_id'], (int) $data['building_id']])) {
+            $errors['room_id'] = 'That room is not in the selected building.';
+        }
+        if ($errors) Response::validation($errors);
+
+        foreach (['category_id', 'campus_id', 'building_id', 'room_id', 'damage_type_id'] as $key) {
+            $data[$key] = (int) $data[$key];
+        }
+        $data['location_note'] = $data['location_note'] !== '' ? $data['location_note'] : null;
+
+        Report::updateDetails($id, $data);
+        AuditLog::log((int) $me['id'], 'report.update', 'report', $id, ['item' => $data['item_name']]);
+        Response::ok(Report::find($id), 'Report updated.');
+    }
+
+    /** POST /api/reports/{id}/images   (owner or admin) */
+    public static function addImage(array $p): never
+    {
+        $id = (int) $p['id'];
+        $me = AuthMiddleware::user();
+        $report = Report::find($id) ?? Response::error('Report not found.', 404);
+        if ((int) $report['user_id'] !== (int) $me['id'] && !AuthMiddleware::atLeast('admin')) {
+            Response::error('You do not have permission to edit this report.', 403);
+        }
+
+        $upload = Uploader::saveImage($_FILES['photo'] ?? null);
+        if ($upload['error']) Response::validation(['photo' => $upload['error']]);
+        if ($upload['file'] === null) Response::validation(['photo' => 'Choose a photo to upload.']);
+
+        try {
+            Report::addImage($id, $upload['file']);
+        } catch (Throwable $e) {
+            Uploader::delete($upload['file']['file_path']);
+            throw $e;
+        }
+        AuditLog::log((int) $me['id'], 'report.image_add', 'report', $id);
+        Response::ok(Report::find($id), 'Photo added to report.');
+    }
+
     /** POST /api/reports   (multipart/form-data because of the photo) */
     public static function store(array $p): never
     {
@@ -86,6 +180,9 @@ class ReportController
         if ($data['equipment_id'] !== null && $data['equipment_id'] !== '') {
             if (!Reference::exists('equipment', (int) $data['equipment_id'])) $errors['equipment_id'] = 'Selected equipment does not exist.';
             else $equipmentId = (int) $data['equipment_id'];
+        } elseif (!isset($errors['item_name']) && !isset($errors['category_id']) && !isset($errors['campus_id'])
+            && !isset($errors['building_id']) && !isset($errors['room_id'])) {
+            $equipmentId = Equipment::matchReport($data);
         }
 
         // Optional photo (jpg/png, max 2MB) - validated BEFORE saving anything.
@@ -134,16 +231,16 @@ class ReportController
         Response::ok(Report::find($id), $status === 'Solved' ? 'Report marked as solved.' : 'Status updated.');
     }
 
-    /** DELETE /api/reports/{id}   owner (only while Pending) or super admin */
+    /** DELETE /api/reports/{id}   owner or admin */
     public static function destroy(array $p): never
     {
         $id = (int) $p['id'];
         $me = AuthMiddleware::user();
         $report = Report::find($id) ?? Response::error('Report not found.', 404);
 
-        $isOwnerPending = (int) $report['user_id'] === (int) $me['id'] && $report['status'] === 'Pending';
-        if (!$isOwnerPending && !AuthMiddleware::atLeast('super_admin')) {
-            Response::error('You can only delete your own reports while they are still Pending.', 403);
+        $isOwner = (int) $report['user_id'] === (int) $me['id'];
+        if (!$isOwner && !AuthMiddleware::atLeast('admin')) {
+            Response::error('You can only delete your own reports.', 403);
         }
         Report::delete($id);
         AuditLog::log((int) $me['id'], 'report.delete', 'report', $id, ['item' => $report['item_name']]);

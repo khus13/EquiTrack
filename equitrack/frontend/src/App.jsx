@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { AppLayout, AccountLayout, StaffLayout } from './components/layout/Layouts.jsx';
 import { useAuth } from './context/AuthContext.jsx';
@@ -21,10 +21,10 @@ import AccountSecurity from './pages/account/AccountSecurity.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ManageReports from './pages/admin/ManageReports.jsx';
 
-import Statistics from './pages/superadmin/Statistics.jsx';
+import Statistics from './pages/admin/Statistics.jsx';
 import Users from './pages/superadmin/Users.jsx';
-import ReferenceData from './pages/superadmin/ReferenceData.jsx';
-import DirectoryManage from './pages/superadmin/DirectoryManage.jsx';
+import ReferenceData from './pages/admin/ReferenceData.jsx';
+import DirectoryManage from './pages/admin/DirectoryManage.jsx';
 import AuditLogs from './pages/superadmin/AuditLogs.jsx';
 
 /**
@@ -67,23 +67,29 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* admin panel */}
+      {/* admin panel (admin + super admin can sign in) */}
       <Route element={<ProtectedRoute role="admin" />}>
         <Route element={<StaffLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/reports/new" element={<SubmitReport />} />
-          <Route path="/admin/reports" element={<ManageReports />} />
-          <Route path="/admin/reports/:id" element={<ReportDetail />} />
+
+          {/* admin only */}
+          <Route element={<OnlyRoles roles={['admin']} />}>
+            <Route path="/admin/reports/new" element={<SubmitReport />} />
+            <Route path="/admin/reports" element={<ManageReports />} />
+            <Route path="/admin/reports/:id" element={<ReportDetail />} />
+            <Route path="/admin/statistics" element={<Statistics />} />
+            <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/reference" element={<ReferenceData />} />
+            <Route path="/admin/directory" element={<DirectoryManage />} />
+          </Route>
         </Route>
       </Route>
 
       {/* super admin panel */}
       <Route element={<ProtectedRoute role="super_admin" />}>
         <Route element={<StaffLayout />}>
-          <Route path="/super-admin" element={<Statistics />} />
+          <Route path="/super-admin" element={<Navigate to="/super-admin/users" replace />} />
           <Route path="/super-admin/users" element={<Users />} />
-          <Route path="/super-admin/reference" element={<ReferenceData />} />
-          <Route path="/super-admin/directory" element={<DirectoryManage />} />
           <Route path="/super-admin/audit" element={<AuditLogs />} />
         </Route>
       </Route>
@@ -98,4 +104,10 @@ function DashboardHome() {
   return user?.role === 'user'
     ? <UserDashboard />
     : <Navigate to={homePathFor(user)} replace />;
+}
+
+/** Allows only the listed roles, with no hierarchy. Use inside <ProtectedRoute>. */
+function OnlyRoles({ roles }) {
+  const { user } = useAuth();
+  return roles.includes(user?.role) ? <Outlet /> : <Navigate to="/unauthorized" replace />;
 }

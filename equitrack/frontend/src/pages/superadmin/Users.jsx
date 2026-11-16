@@ -18,6 +18,8 @@ const BLANK = { first_name: '', last_name: '', email: '', password: '', role: 'u
 
 export default function Users() {
   const { user: me } = useAuth();
+  const isSuper = me?.role === 'super_admin';
+  const assignableRoles = Object.entries(ROLE_LABEL).filter(([value]) => value !== 'super_admin').map(([value, label]) => ({ value, label }));
   const toast = useToast();
   const { query, setQuery, reset } = useListQuery({ q: '', role: '', status: '', page: 1 });
   const [text, setText] = useSearchBox(query, setQuery);
@@ -39,7 +41,9 @@ export default function Users() {
   const save = async () => {
     setBusy(true); setFormError('');
     try {
-      if (editing === 'new') await api.post('/users', form); else await api.put(`/users/${editing.id}`, form);
+      const { role, ...withoutRole } = form;
+      const payload = isSuper ? form : withoutRole;      // admins never send a role
+      if (editing === 'new') await api.post('/users', payload); else await api.put(`/users/${editing.id}`, payload);
       toast.success(editing === 'new' ? 'User created.' : 'User updated.');
       setEditing(null); reload();
     } catch (e) {
@@ -74,10 +78,17 @@ export default function Users() {
 
   return (
     <>
-      <PageHeader title="Users" subtitle="View, add, edit and remove accounts." breadcrumbs={[{ label: 'Super Admin', to: '/super-admin' }, { label: 'Users' }]}
-        actions={<Button onClick={() => openForm(null)}><IconPlus className="h-5 w-5" /> Add user</Button>} />
+      <PageHeader
+        title="Users"
+        subtitle={isSuper ? 'View, add, edit and remove accounts.' : 'View, edit, deactivate and remove user accounts.'}
+        breadcrumbs={isSuper
+          ? [{ label: 'Super Admin', to: '/super-admin' }, { label: 'Users' }]
+          : [{ label: 'Admin', to: '/admin' }, { label: 'Users' }]}
+        actions={isSuper ? <Button onClick={() => openForm(null)}><IconPlus className="h-5 w-5" /> Add user</Button> : undefined} />
       <SearchFilterBar value={text} onChange={setText} placeholder="Search name or e-mail…" showReset={!!filtered} onReset={() => { setText(''); reset(); }}>
-        <FilterSelect label="Role" placeholder="All roles" value={query.role} onChange={(v) => setQuery({ role: v })} options={Object.entries(ROLE_LABEL).map(([value, label]) => ({ value, label }))} />
+        {isSuper && (
+          <FilterSelect label="Role" placeholder="All roles" value={query.role} onChange={(v) => setQuery({ role: v })} options={Object.entries(ROLE_LABEL).map(([value, label]) => ({ value, label }))} />
+        )}
         <FilterSelect label="Status" placeholder="Any status" value={query.status} onChange={(v) => setQuery({ status: v })} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
       </SearchFilterBar>
       <DataTable caption="Users" columns={columns} rows={data?.items} loading={loading} error={error} onRetry={reload}
@@ -94,8 +105,8 @@ export default function Users() {
           </div>
           <TextInput label="Email" type="email" required value={form.email} onChange={set('email')} error={errors.email} />
           <PasswordInput label={editing === 'new' ? 'Password' : 'New password'} required={editing === 'new'} hint={editing === 'new' ? undefined : 'Leave empty to keep the current password.'} autoComplete="new-password" value={form.password} onChange={set('password')} error={errors.password} />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Select label="Role" value={form.role} onChange={set('role')} error={errors.role} options={Object.entries(ROLE_LABEL).map(([value, label]) => ({ value, label }))} />
+          <div className={isSuper && editing?.role !== 'super_admin' ? 'grid gap-4 sm:grid-cols-2' : ''}>
+            {isSuper && editing?.role !== 'super_admin' && <Select label="Role" value={form.role} onChange={set('role')} error={errors.role} options={assignableRoles} />}
             <Select label="Status" value={form.status} onChange={set('status')} error={errors.status} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
           </div>
         </form>

@@ -10,7 +10,7 @@ class Report
 
     /** Columns shown in lists (joins give us readable names instead of ids). */
     private const LIST_SELECT = "SELECT r.id, r.reference_no, r.item_name, r.priority, r.status, r.created_at, r.updated_at,
-            r.user_id, r.equipment_id, r.category_id, r.campus_id, r.building_id, r.room_id, r.location_note,
+            r.user_id, r.equipment_id, r.category_id, r.campus_id, r.building_id, r.room_id, r.damage_type_id, r.location_note,
             c.name AS category_name, cp.name AS campus_name, b.name AS building_name, rm.name AS room_name,
             d.name AS damage_type_name, u.first_name AS reporter_first, u.last_name AS reporter_last, u.email AS reporter_email,
             (SELECT MIN(i.id) FROM report_images i WHERE i.report_id = r.id) AS image_id
@@ -23,9 +23,12 @@ class Report
         JOIN users u         ON u.id  = r.user_id";
 
     private const COUNT_FROM = " FROM reports r
-        JOIN buildings b ON b.id = r.building_id
-        JOIN rooms rm    ON rm.id = r.room_id
-        JOIN users u     ON u.id = r.user_id";
+        JOIN categories c    ON c.id  = r.category_id
+        JOIN campuses cp     ON cp.id = r.campus_id
+        JOIN buildings b     ON b.id  = r.building_id
+        JOIN rooms rm        ON rm.id = r.room_id
+        JOIN damage_types d  ON d.id  = r.damage_type_id
+        JOIN users u         ON u.id  = r.user_id";
 
     /** Sort options the client may choose (whitelist -> no SQL injection through ?sort=). */
     private const SORTS = [
@@ -91,6 +94,35 @@ class Report
         return array_map([self::class, 'present'], Database::all(self::LIST_SELECT . $w . ' ORDER BY r.created_at DESC, r.id DESC LIMIT ' . (int) $limit));
     }
 
+    public static function updateDetails(int $id, array $d): void
+    {
+        Database::run(
+            'UPDATE reports
+             SET item_name = ?, category_id = ?, campus_id = ?, building_id = ?, room_id = ?,
+                 location_note = ?, damage_type_id = ?, description = ?, priority = ?, updated_at = ?
+             WHERE id = ?',
+            [$d['item_name'], $d['category_id'], $d['campus_id'], $d['building_id'], $d['room_id'],
+             $d['location_note'], $d['damage_type_id'], $d['description'], $d['priority'], date('Y-m-d H:i:s'), $id]
+        );
+    }
+
+    public static function addImage(int $id, array $image): void
+    {
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
+        try {
+            Database::run(
+                'INSERT INTO report_images (report_id, file_path, original_name, mime_type, file_size) VALUES (?,?,?,?,?)',
+                [$id, $image['file_path'], $image['original_name'], $image['mime_type'], $image['file_size']]
+            );
+            Database::run('UPDATE reports SET updated_at = ? WHERE id = ?', [date('Y-m-d H:i:s'), $id]);
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
     /** One report with everything: description, remarks, images and the timeline. */
     public static function find(int $id): ?array
     {
@@ -123,10 +155,75 @@ class Report
         return $r;
     }
 
+    /** A public-safe report summary; excludes reporter identity, description, remarks and history. */
+    public static function publicSummary(int $id): ?array
+    {
+        $report = Database::one(
+            "SELECT r.id, r.reference_no, r.item_name, r.priority, r.status, r.created_at,
+                    r.location_note, c.name AS category_name, d.name AS damage_type_name,
+                    cp.name AS campus_name, b.name AS building_name, rm.name AS room_name,
+                    e.name AS equipment_name, e.asset_tag
+             FROM reports r
+             JOIN categories c ON c.id = r.category_id
+             JOIN damage_types d ON d.id = r.damage_type_id
+             JOIN campuses cp ON cp.id = r.campus_id
+             JOIN buildings b ON b.id = r.building_id
+             JOIN rooms rm ON rm.id = r.room_id
+             LEFT JOIN equipment e ON e.id = r.equipment_id
+             WHERE r.id = ?",
+            [$id]
+        );
+        if ($report === null) return null;
+        $report['images'] = Database::all(
+            'SELECT id, mime_type FROM report_images WHERE report_id = ? ORDER BY id',
+            [$id]
+        );
+        return $report;
+    }
+
+    public static function publicImage(int $reportId, int $imageId): ?array
+    {
+        return Database::one(
+            'SELECT id, file_path, mime_type, original_name
+             FROM report_images WHERE report_id = ? AND id = ?',
+            [$reportId, $imageId]
+        );
+    }
+
     public static function ownerId(int $id): ?int
     {
         $v = Database::value('SELECT user_id FROM reports WHERE id = ?', [$id]);
         return $v === null ? null : (int) $v;
+    }
+
+    public static function backfillUnlinkedEquipment(): array
+    {
+        $reports = Database::all(
+            'SELECT id, item_name, category_id, campus_id, building_id, room_id
+             FROM reports WHERE equipment_id IS NULL ORDER BY id'
+        );
+        $summary = ['processed' => 0, 'matched' => 0, 'created' => 0];
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
+        try {
+            foreach ($reports as $report) {
+                $equipmentId = Equipment::matchReport($report);
+                if ($equipmentId === null) {
+                    $equipmentId = Equipment::createFromReport($report, (int) $report['id']);
+                    $summary['created']++;
+                } else {
+                    $summary['matched']++;
+                }
+                Database::run('UPDATE reports SET equipment_id = ? WHERE id = ? AND equipment_id IS NULL', [$equipmentId, $report['id']]);
+                Equipment::syncStatus($equipmentId);
+                $summary['processed']++;
+            }
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+        return $summary;
     }
 
     /** Insert the report, its photo and the first timeline entry in ONE transaction. */
@@ -145,6 +242,11 @@ class Report
             Database::run('UPDATE reports SET reference_no = ? WHERE id = ?',
                 [sprintf('ET-%s-%06d', date('Y'), $id), $id]);
 
+            $equipmentId = $d['equipment_id'] ? (int) $d['equipment_id'] : Equipment::createFromReport($d, $id);
+            if ($d['equipment_id'] === null) {
+                Database::run('UPDATE reports SET equipment_id = ? WHERE id = ?', [$equipmentId, $id]);
+            }
+
             if ($image !== null) {
                 Database::run('INSERT INTO report_images (report_id, file_path, original_name, mime_type, file_size) VALUES (?,?,?,?,?)',
                     [$id, $image['file_path'], $image['original_name'], $image['mime_type'], $image['file_size']]);
@@ -152,7 +254,7 @@ class Report
             Database::run('INSERT INTO report_status_history (report_id, old_status, new_status, changed_by, remarks) VALUES (?,?,?,?,?)',
                 [$id, null, 'Pending', $userId, 'Report submitted']);
 
-            Equipment::syncStatus($d['equipment_id']);
+            Equipment::syncStatus($equipmentId);
             $pdo->commit();
             return $id;
         } catch (Throwable $e) {

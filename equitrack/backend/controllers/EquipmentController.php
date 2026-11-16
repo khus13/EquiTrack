@@ -1,7 +1,7 @@
 <?php
 /**
  * controllers/EquipmentController.php
- * The equipment directory. Everyone logged in can search it; only Super Admin edits it.
+ * The public equipment directory. Only Super Admin edits equipment.
  */
 class EquipmentController
 {
@@ -10,7 +10,7 @@ class EquipmentController
     /** GET /api/equipment?q=&category_id=&campus_id=&building_id=&type_id=&status=&page= */
     public static function index(array $p): never
     {
-        [$page, $perPage, $offset] = Paginator::params(12);
+        [$page, $perPage, $offset] = Paginator::params(10, 12);
         [$rows, $total] = Equipment::paginate([
             'q'           => Validator::clean(Request::query('q', '')),
             'category_id' => Request::query('category_id'),

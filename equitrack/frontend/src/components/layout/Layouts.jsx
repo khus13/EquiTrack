@@ -35,22 +35,30 @@ export function AccountLayout() {
 /** Admin + Super Admin panel: sidebar content depends on the role. */
 export function StaffLayout() {
   const { user } = useAuth();
-  const sections = [
-    { title: 'Admin', items: [
+  const isAdmin = user?.role === 'admin';
+  const isSuperAdmin = user?.role === 'super_admin';
+
+  const sections = [];
+
+  if (isAdmin) {
+    sections.push({ title: 'Admin', items: [
       { to: '/admin', label: 'Dashboard', icon: IconGrid, end: true },
       { to: '/admin/reports/new', label: 'File a report', icon: IconPlus, end: true },
       { to: '/admin/reports', label: 'All reports', icon: IconClipboard, end: true },
-    ] },
-  ];
-  if (hasRole(user, 'super_admin')) {
+      { to: '/admin/statistics', label: 'Statistics', icon: IconChart },
+      { to: '/admin/users', label: 'Users', icon: IconUsers },
+      { to: '/admin/reference', label: 'Reference data', icon: IconDatabase },
+      { to: '/admin/directory', label: 'Manage directory', icon: IconBox },
+    ] });
+  }
+
+  if (isSuperAdmin) {
     sections.push({ title: 'Super Admin', items: [
-      { to: '/super-admin', label: 'Statistics', icon: IconChart, end: true },
       { to: '/super-admin/users', label: 'Users', icon: IconUsers },
-      { to: '/super-admin/reference', label: 'Reference data', icon: IconDatabase },
-      { to: '/super-admin/directory', label: 'Manage directory', icon: IconBox },
       { to: '/super-admin/audit', label: 'Audit logs', icon: IconShield },
     ] });
   }
+
   sections.push({ title: 'Account', items: [
     { to: '/account', label: 'Profile info', icon: IconUser, end: true },
     { to: '/account/security', label: 'Password & security', icon: IconCog },

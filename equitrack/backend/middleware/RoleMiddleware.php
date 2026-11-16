@@ -1,14 +1,31 @@
 <?php
 /**
  * middleware/RoleMiddleware.php
- * Used after AuthMiddleware:  'role:admin'  means "admin or super_admin".
+ * Exact roles, no hierarchy:
+ *   'role:admin'              -> admin only
+ *   'role:admin,super_admin'  -> either of the two
  */
 class RoleMiddleware
 {
-    public static function handle(string $minimumRole): void
+    private const NEXT = ['user' => 'admin', 'admin' => 'super_admin', 'super_admin' => null];
+
+    public static function handle(string ...$args): void
     {
-        if (!AuthMiddleware::atLeast($minimumRole)) {
-            Response::error('You do not have permission to do that.', 403);   // 403 = logged in but not allowed
+        $roles = [];
+        foreach ($args as $arg) {
+            foreach (explode(',', $arg) as $role) $roles[] = trim($role);
         }
+        foreach ($roles as $role) {
+            if (self::is($role)) return;
+        }
+        Response::error('You do not have permission to do that.', 403);
+    }
+
+    /** True only if the current user's role is exactly $role. */
+    private static function is(string $role): bool
+    {
+        if (!AuthMiddleware::atLeast($role)) return false;
+        $next = self::NEXT[$role] ?? null;
+        return $next === null || !AuthMiddleware::atLeast($next);
     }
 }

@@ -34,6 +34,7 @@ equitrack/
 │   ├── helpers/              Response, Request, Validator, Uploader, Paginator
 │   ├── uploads/              report photos (blocked from direct web access)
 │   ├── scripts/create_user.php   create real accounts from the command line
+│   ├── scripts/backfill_report_equipment.php   link older reports to directory entries
 │   ├── router.php            for PHP's built-in dev server
 │   └── .env.example
 ├── frontend/
@@ -57,6 +58,11 @@ equitrack/
 | Super Admin | `superadmin@usc.edu.ph` | `password123` |
 | Admin | `admin@usc.edu.ph` | `password123` |
 | User | `juan@usc.edu.ph` | `password123` |
+| User | `alex.demo@example.test` | `password123` |
+| User | `sam.demo@example.test` | `password123` |
+| User | `riley.demo@example.test` | `password123` |
+| User | `casey.demo@example.test` | `password123` |
+| User | `jordan.demo@example.test` | `password123` |
 
 > **Delete or change these before going live.** Create real accounts with
 > `php backend/scripts/create_user.php super_admin you@usc.edu.ph "StrongPass123" First Last`.
@@ -70,6 +76,8 @@ equitrack/
    (Command line alternative: `mysql -u root -p < database/schema.sql`)
 2. **Configure the backend.** Copy `backend/.env.example` to `backend/.env` and set `DB_USER` / `DB_PASS`
    (XAMPP default: user `root`, empty password).
+   For an existing database with older reports missing from the directory, preview the backfill with
+   `php backend/scripts/backfill_report_equipment.php`; run it with `--apply` only after confirming the count.
 3. **Start the PHP API** (keep this terminal open). With XAMPP's PHP on your PATH:
    ```bash
    cd backend
@@ -129,6 +137,7 @@ Frontend (optional) `frontend/.env`: `VITE_API_BASE` – only if the API is on a
 
 All replies: `{ "success": true|false, "message": "...", "data": ... }`. Lists return
 `data: { items: [...], pagination: { page, per_page, total, total_pages } }`.
+Paginated endpoints return at most 10 records per page.
 Validation errors are `422` with `data.errors = { field: "message" }`. Codes used:
 `200 201 401 403 404 405 409 419 422 429 500`.
 
@@ -139,8 +148,11 @@ Every write request must send the header `X-CSRF-Token` (get it from `GET /api/a
 | Auth | `GET /auth/me` · `POST /auth/register` · `POST /auth/login` · `POST /auth/logout` | public |
 | Account | `PATCH /profile` · `PATCH /profile/password` · `POST /profile/deactivate` · `DELETE /profile` | signed in |
 | Reports | `GET /reports` (users: own only) · `POST /reports` (multipart) · `GET /reports/{id}` · `DELETE /reports/{id}` | signed in |
+|  | `GET /public-reports/{id}` · `GET /public-report-images/{id}?report_id={id}` | public-safe summary and linked photos |
 |  | `PATCH /reports/{id}/status` · `GET /report-images/{id}` | admin / owner |
-| Directory | `GET /equipment` · `GET /equipment/{id}` | signed in |
+| Directory | `GET /equipment` · `GET /meta` · `GET /equipment/{id}/reports` | public |
+|  | `GET /equipment-report-images/{id}?equipment_id={id}` (only linked report photos) | public |
+|  | `GET /equipment/{id}` | signed in |
 |  | `POST/PUT/DELETE /equipment[/{id}]` | super admin |
 | Reference | `GET /meta` | signed in |
 |  | `GET/POST/PUT/DELETE /reference/{campuses|buildings|rooms|categories|equipment_types|damage_types}` | admin read · super admin write |
@@ -153,16 +165,17 @@ Every write request must send the header `X-CSRF-Token` (get it from `GET /api/a
 Passwords hashed with `password_hash` (bcrypt) · PDO prepared statements everywhere · server-side validation
 and `strip_tags` sanitising · session cookie `HttpOnly`, `SameSite=Lax`, `Secure` on HTTPS, new session id at
 login · CSRF token on every write · role checks on the server for every route (the React guards are only UX) ·
-users can only read their own reports and photos · uploads: size + real MIME type + image check, random file
-names, stored outside public access and served through an authorised endpoint · CORS allow-list ·
+users can only read their own full report details and photos · public report summaries omit reporter identity,
+description, remarks and history; public photo access is constrained to its report · uploads: size + real MIME type +
+image check, random file names, stored outside public access · CORS allow-list ·
 login throttling (10 failures / 15 min / IP) · audit log of important actions · last Super Admin cannot be
 removed · security headers (`nosniff`, `X-Frame-Options`).
 
 ## Testing
 
 **Automated (backend):** `python3 tests/api_test.py` starts PHP's built-in server against a temporary SQLite copy of
-`schema.sql` and runs 120+ checks (auth, roles, CSRF, validation, upload rules, search/filter/sort/pagination,
-status workflow, audit log, CORS). Requires Python 3 + `pip install requests` and PHP with `pdo_sqlite`.
+`schema.sql` and runs 150+ checks (auth, roles, CSRF, validation, upload rules, public directory summaries,
+search/filter/sort/pagination, status workflow, audit log, CORS). Requires Python 3 + `pip install requests` and PHP with `pdo_sqlite`.
 Run it before submitting changes.
 
 **Manual checklist**

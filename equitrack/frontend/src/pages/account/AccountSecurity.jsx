@@ -12,7 +12,7 @@ import { validatePasswordChange } from '../../lib/validators.js';
 const EMPTY_PW = { current_password: '', new_password: '', confirm_password: '' };
 
 export default function AccountSecurity() {
-  const { replaceUser } = useAuth();
+  const { user, replaceUser } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -33,7 +33,6 @@ export default function AccountSecurity() {
     catch (e) { if (e instanceof ApiError && e.status === 422) setErrors(e.errors); else toast.error(e.message); }
     finally { setBusy(false); }
   };
-
   /** deactivate / delete both need the password and end the session */
   const dangerous = async (kind) => {
     if (!confirmPw) { setErrors({ password: 'Enter your password to confirm.' }); return; }
@@ -48,6 +47,7 @@ export default function AccountSecurity() {
       if (e instanceof ApiError && e.status === 422) setErrors(e.errors); else { toast.error(e.message); close(); }
     } finally { setBusy(false); }
   };
+  
 
   const Row = ({ title, text, button }) => (
     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-surface-line py-5">
@@ -63,8 +63,12 @@ export default function AccountSecurity() {
       <h1>Password &amp; security</h1>
       <div className="mt-6 max-w-3xl">
         <Row title="Password" text="Use at least 8 characters with letters and numbers." button={<Button onClick={() => setModal('password')}>Edit</Button>} />
-        <Row title="Deactivate your account" text="Temporarily disable your account. An administrator can reactivate it." button={<Button variant="danger" onClick={() => setModal('deactivate')}>Deactivate</Button>} />
-        <Row title="Delete your account" text="Close your account permanently. Your reports are deleted too." button={<Button variant="danger" onClick={() => setModal('delete')}>Delete</Button>} />
+        {user?.role === 'user' && (
+          <>
+            <Row title="Deactivate your account" text="Temporarily disable your account. An administrator can reactivate it." button={<Button variant="danger" onClick={() => setModal('deactivate')}>Deactivate</Button>} />
+            <Row title="Delete your account" text="Close your account permanently. Your reports are deleted too." button={<Button variant="danger" onClick={() => setModal('delete')}>Delete</Button>} />
+          </>
+        )}
       </div>
 
       <Modal open={modal === 'password'} onClose={close} title="Change password"

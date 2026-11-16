@@ -2,7 +2,7 @@
 /**
  * controllers/ReferenceController.php
  * Reference data = campuses, buildings, rooms, categories, equipment types, damage types.
- *   GET /api/meta                     -> everything at once (any logged-in user, used by forms)
+ *   GET /api/meta                     -> public reference data for directory and forms
  *   GET /api/reference/{resource}     -> list one table (admin)
  *   POST/PUT/DELETE ...               -> Super Admin
  */

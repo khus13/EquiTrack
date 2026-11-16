@@ -231,12 +231,17 @@ INSERT INTO roles (id, name, description) VALUES
  (2, 'admin',       'Maintenance staff who manage reports'),
  (3, 'super_admin', 'System owner: users, reference data, directory, audit logs');
 
--- DEMO ACCOUNTS  -  password for ALL three is:  password123
+-- DEMO ACCOUNTS  -  password for all seeded accounts is:  password123
 -- (bcrypt hash made with PHP password_hash). DELETE or change before going live!
 INSERT INTO users (id, role_id, first_name, last_name, email, password_hash, status) VALUES
  (1, 3, 'Super',  'Admin',     'superadmin@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active'),
  (2, 2, 'Admin',  'EquiTrack', 'admin@usc.edu.ph',      '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active'),
- (3, 1, 'Juan',   'Dela Cruz', 'juan@usc.edu.ph',       '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active');
+ (3, 1, 'Juan',   'Dela Cruz', 'juan@usc.edu.ph',       '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active'),
+ (4, 1, 'Alex',   'Demo',      'alex.demo@example.test', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active'),
+ (5, 1, 'Sam',    'Demo',      'sam.demo@example.test',  '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active'),
+ (6, 1, 'Riley',  'Demo',      'riley.demo@example.test','$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active'),
+ (7, 1, 'Casey',  'Demo',      'casey.demo@example.test','$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active'),
+ (8, 1, 'Jordan', 'Demo',      'jordan.demo@example.test','$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active');
 
 INSERT INTO campuses (id, name, code, address) VALUES
  (1, 'Talamban Campus', 'TC', 'Nasipit, Talamban, Cebu City'),
@@ -254,8 +259,7 @@ INSERT INTO buildings (id, campus_id, name, code) VALUES
  (7, 1, 'MR Bldg.',                 'MR'),
  (8, 1, 'BCT',                      'BCT'),
  (9, 1, 'Chapel',                   'CH'),
- (10, 2, 'Main Building',           'DMB'),
- (11, 3, 'Science Building',        'MSB');
+ (11, 3, 'Arnold Smith Building',   'ASB');
 
 INSERT INTO rooms (id, building_id, name, floor) VALUES
  (1, 1, 'LB 467 TC', '4'), (2, 1, 'LB 486', '4'), (3, 1, '4th Floor', '4'), (4, 1, 'Lobby', '1'),
@@ -267,7 +271,6 @@ INSERT INTO rooms (id, building_id, name, floor) VALUES
  (15, 7, 'MR Hall', '1'),  (16, 7, 'MR 105', '1'),
  (17, 8, 'Main Court', '1'), (18, 8, 'Bleachers', '1'),
  (19, 9, '1st Floor CR', '1'), (20, 9, 'Sanctuary', '1'),
- (21, 10, 'Room 101', '1'), (22, 10, 'Faculty Room', '2'),
  (23, 11, 'Chem Lab 1', '1');
 
 INSERT INTO categories (id, name, description) VALUES
@@ -302,19 +305,18 @@ INSERT INTO equipment (id, asset_tag, name, category_id, type_id, room_id, statu
  (8,  'TC-PV-0001', 'Split-type Aircon 2HP',     1, 4, 7,  'operational',  'Room PVE 101'),
  (9,  'TC-JB-0001', 'LRC Desktop PC Lab (20 pcs)', 1, 2, 13, 'operational', 'Reading area computers'),
  (10, 'TC-RH-0001', 'Ceiling Light Panel',       1, 5, 11, 'operational',  'RH 201 lighting'),
- (11, 'DC-MB-0001', 'Classroom Projector',       1, 1, 21, 'operational',  'Downtown Room 101'),
- (12, 'MC-SB-0001', 'Fume Hood',                 1, 9, 23, 'operational',  'Chemistry lab');
+ (12, 'MC-AS-0001', 'Fume Hood',                 1, 9, 23, 'operational',  'Chemistry lab');
 
 -- Sample reports (migrated from the original project's demo data)
 INSERT INTO reports (id, reference_no, user_id, equipment_id, item_name, category_id, campus_id, building_id, room_id,
                      damage_type_id, description, priority, status, created_at) VALUES
  (1, 'ET-2026-000001', 3, 1, 'TV Whiteboard',        1, 1, 1, 2,  5, 'Projector display is flickering and the touch overlay does not respond.', 'High',   'Pending',     '2026-09-01 09:10:00'),
- (2, 'ET-2026-000002', 3, 2, 'Biometric Scanner',    1, 1, 1, 3,  2, 'Face scanner at the entrance fails to register faces.',                   'Medium', 'Pending',     '2026-09-03 10:30:00'),
+ (2, 'ET-2026-000002', 4, 2, 'Biometric Scanner',    1, 1, 1, 3,  2, 'Face scanner at the entrance fails to register faces.',                   'Medium', 'Pending',     '2026-09-03 10:30:00'),
  (3, 'ET-2026-000003', 3, 4, 'Urinal Leaking',       2, 1, 4, 9,  3, 'Urinal has a steady leak and the floor is constantly wet.',               'Urgent', 'Pending',     '2026-09-05 14:00:00'),
- (4, 'ET-2026-000004', 3, 5, 'Ripped Beanbag Seats', 2, 1, 2, 5,  1, 'Several beanbag seats are torn and leaking filling.',                      'Low',    'Pending',     '2026-09-07 11:45:00'),
- (5, 'ET-2026-000005', 3, 6, 'Broken folding seat',  2, 1, 7, 15, 1, 'Folding armrest tablet is detached from the seat.',                       'Medium', 'In Progress', '2026-09-08 08:20:00'),
- (6, 'ET-2026-000006', 3, 7, 'No running water',     2, 1, 9, 19, 3, 'Faucets in the comfort room have no running water.',                      'High',   'Pending',     '2026-09-10 16:05:00'),
- (7, 'ET-2026-000007', 3, 3, 'Broken HDMI Port',     1, 1, 1, 1,  1, 'HDMI port on the lectern is loose and gives no signal.',                  'Medium', 'Solved',      '2026-08-20 13:00:00');
+ (4, 'ET-2026-000004', 5, 5, 'Ripped Beanbag Seats', 2, 1, 2, 5,  1, 'Several beanbag seats are torn and leaking filling.',                      'Low',    'Pending',     '2026-09-07 11:45:00'),
+ (5, 'ET-2026-000005', 6, 6, 'Broken folding seat',  2, 1, 7, 15, 1, 'Folding armrest tablet is detached from the seat.',                       'Medium', 'In Progress', '2026-09-08 08:20:00'),
+ (6, 'ET-2026-000006', 7, 7, 'No running water',     2, 1, 9, 19, 3, 'Faucets in the comfort room have no running water.',                      'High',   'Pending',     '2026-09-10 16:05:00'),
+ (7, 'ET-2026-000007', 8, 3, 'Broken HDMI Port',     1, 1, 1, 1,  1, 'HDMI port on the lectern is loose and gives no signal.',                  'Medium', 'Solved',      '2026-08-20 13:00:00');
 
 UPDATE reports SET resolved_by = 2, resolved_at = '2026-08-22 10:00:00', remarks = 'Replaced the HDMI module.' WHERE id = 7;
 

@@ -24,7 +24,7 @@ class Stats
         return [
             'counts'        => $counts + ['total' => array_sum($counts)],
             'urgent_open'   => (int) Database::value("SELECT COUNT(*) FROM reports WHERE priority = 'Urgent' AND status <> 'Solved'"),
-            'recent'        => Report::recent(6),
+            'recent'        => Report::recent(12),
             'to_repair'     => Report::toRepair(8),
         ];
     }

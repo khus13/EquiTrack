@@ -1,11 +1,28 @@
 <?php
 /**
- * controllers/UserController.php   (Super Admin only - see routes)
- * Manage every account in the system.
+ * controllers/UserController.php
+ * Super Admin: manages every account.
+ * Admin: manages plain "user" accounts only (cannot see admins/super admins,
+ * cannot create accounts, cannot change roles).
  */
 class UserController
 {
-    private const ROLES = ['user', 'admin', 'super_admin'];
+    /** Roles that can be assigned. Nobody can create or promote a Super Admin. */
+    private const ROLES = ['user', 'admin'];
+
+    /** True when the caller is an admin but not a super admin. */
+    private static function adminOnly(): bool
+    {
+        return !AuthMiddleware::atLeast('super_admin');
+    }
+
+    /** Admins may only touch plain users; any other account "does not exist" for them. */
+    private static function guardTarget(array $target): void
+    {
+        if (self::adminOnly() && $target['role'] !== 'user') {
+            Response::error('User not found.', 404);
+        }
+    }
 
     /** GET /api/users?q=&role=&status=&page=&per_page= */
     public static function index(array $p): never
@@ -13,7 +30,8 @@ class UserController
         [$page, $perPage, $offset] = Paginator::params(10);
         [$rows, $total] = User::paginate([
             'q' => Validator::clean(Request::query('q', '')),
-            'role' => Request::query('role'), 'status' => Request::query('status'),
+            'role' => self::adminOnly() ? 'user' : Request::query('role'),
+            'status' => Request::query('status'),
         ], $perPage, $offset);
         Response::paginated($rows, $total, $page, $perPage);
     }
@@ -21,11 +39,12 @@ class UserController
     /** GET /api/users/{id} */
     public static function show(array $p): never
     {
-        $u = User::find((int) $p['id']);
-        $u ? Response::ok($u) : Response::error('User not found.', 404);
+        $u = User::find((int) $p['id']) ?? Response::error('User not found.', 404);
+        self::guardTarget($u);
+        Response::ok($u);
     }
 
-    /** POST /api/users */
+    /** POST /api/users  (super admin only, enforced in routes) */
     public static function store(array $p): never
     {
         [$in, $errors] = self::validated(null, true);
@@ -40,8 +59,24 @@ class UserController
     {
         $id = (int) $p['id'];
         $target = User::find($id) ?? Response::error('User not found.', 404);
+        self::guardTarget($target);
         [$in, $errors] = self::validated($id, false);
+
+        // Admins can never change a role. A Super Admin's own role is fixed too.
+        if (self::adminOnly() || $target['role'] === 'super_admin') {
+            $in['role'] = $target['role'];
+            unset($errors['role']);
+        }
         if ($errors) Response::validation($errors);
+
+        if (AuthMiddleware::user()['role'] !== 'user') {
+            Response::error('Admin accounts cannot be deactivated or deleted here.', 403);
+        }
+
+        // Nobody may deactivate their own account here.
+        if ($id === (int) AuthMiddleware::user()['id'] && $in['status'] !== 'active') {
+            Response::error('You cannot deactivate your own account.', 409);
+        }
 
         // Never leave the system without an active Super Admin.
         if ($target['role'] === 'super_admin' && ($in['role'] !== 'super_admin' || $in['status'] !== 'active') && User::countByRole('super_admin') <= 1) {
@@ -58,8 +93,12 @@ class UserController
     {
         $id = (int) $p['id'];
         $target = User::find($id) ?? Response::error('User not found.', 404);
+        self::guardTarget($target);
         $status = (string) Request::input('status', '');
         if (!in_array($status, ['active', 'inactive'], true)) Response::validation(['status' => 'Status must be active or inactive.']);
+        if ($status === 'inactive' && $id === (int) AuthMiddleware::user()['id']) {
+            Response::error('You cannot deactivate your own account.', 409);
+        }
         if ($status === 'inactive' && $target['role'] === 'super_admin' && User::countByRole('super_admin') <= 1) {
             Response::error('This is the only active Super Admin.', 409);
         }
@@ -74,6 +113,7 @@ class UserController
         $id = (int) $p['id'];
         $me = AuthMiddleware::user();
         $target = User::find($id) ?? Response::error('User not found.', 404);
+        self::guardTarget($target);
         if ($id === (int) $me['id']) Response::error('You cannot delete your own account here. Use My Account instead.', 409);
         if ($target['role'] === 'super_admin' && User::countByRole('super_admin') <= 1) Response::error('Cannot delete the only Super Admin.', 409);
 

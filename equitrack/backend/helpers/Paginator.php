@@ -6,10 +6,10 @@
  */
 class Paginator
 {
-    public static function params(int $defaultPerPage = 10): array
+    public static function params(int $defaultPerPage = 10, int $maxPerPage = 10): array
     {
         $page    = Request::intQuery('page', 1, 1, 100000);
-        $perPage = Request::intQuery('per_page', $defaultPerPage, 1, 100);
+        $perPage = Request::intQuery('per_page', min($defaultPerPage, $maxPerPage), 1, $maxPerPage);
         return [$page, $perPage, ($page - 1) * $perPage];
     }
 

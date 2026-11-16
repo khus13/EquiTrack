@@ -7,7 +7,7 @@ class AuditController
     /** GET /api/audit-logs?q=&action=&entity_type=&user_id=&from=&to=&page= */
     public static function index(array $p): never
     {
-        [$page, $perPage, $offset] = Paginator::params(15);
+        [$page, $perPage, $offset] = Paginator::params(10);
         $date = fn($v) => is_string($v) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $v) ? $v : null;
         [$rows, $total] = AuditLog::paginate([
             'q'           => Validator::clean(Request::query('q', '')),
