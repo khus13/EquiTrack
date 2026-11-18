@@ -30,13 +30,26 @@ EquiTrack is a digital tracking system aimed to note down broken equipment, tool
 
 ## Screenshots**(FILL IN)**
 
-| Home Page | Dashboard / Main View |
-| :---: | :---: |
-| ![Home Page Screenshot](assets/screenshots/home.png) | ![Dashboard Screenshot](assets/screenshots/dashboard.png) |
-_(ADD MORE SCREENSHOTS OF OUR FEATURES!)_
-
+| Home Page |
+| :---: |
+| <img width="959" height="454" alt="Screenshot 2026-11-18 235952" src="https://github.com/user-attachments/assets/f9d07503-7d62-452b-ba94-acd69bc652c3" /> |
+| Dashboard |
+| <img width="959" height="454" alt="Screenshot 2026-11-19 002729" src="https://github.com/user-attachments/assets/67cf7643-14f2-4f95-8971-c8c619da66fe" /> |
+| Filing a Report |
+| <img width="959" height="454" alt="Screenshot 2026-11-19 002355" src="https://github.com/user-attachments/assets/f410806e-05d7-4fcf-ac36-e731049f9d09" /> <img width="959" height="454" alt="Screenshot 2026-11-19 002403" src="https://github.com/user-attachments/assets/4255e3aa-8120-4362-8916-b96d6d0e3a3b" /> |
+| My Reports View |
+| <img width="959" height="454" alt="Screenshot 2026-11-19 002423" src="https://github.com/user-attachments/assets/ad98c9d0-8e20-44ad-a13c-ae68a9d73d18" /> <img width="959" height="454" alt="Screenshot 2026-11-19 002431" src="https://github.com/user-attachments/assets/365afab0-056e-4298-9664-ad9f1d3a9787" /> |
+| Edit Report |
+| <img width="502" height="432" alt="Screenshot 2026-11-19 002442" src="https://github.com/user-attachments/assets/c5a3e7af-e943-48cf-bd67-15977182d663" />
+<img width="502" height="432" alt="Screenshot 2026-11-19 002500" src="https://github.com/user-attachments/assets/158f0174-8bfd-40d9-a4bc-b391bb17b228" /> |
+| Reports Directory |
+| <img width="959" height="454" alt="Screenshot 2026-11-19 002519" src="https://github.com/user-attachments/assets/3c573bbc-ece2-4881-98dc-b773379cbfb8" /> |
+| Editing Profile Info |
+| <img width="959" height="454" alt="Screenshot 2026-11-19 002737" src="https://github.com/user-attachments/assets/7fa972fc-09ad-444d-a42c-914253268242" /> |
+| Account Password & Security |
+| <img width="959" height="454" alt="Screenshot 2026-11-19 002750" src="https://github.com/user-attachments/assets/c91725d8-c35f-4aec-be04-1b5435eb20da" /> <img width="756" height="607" alt="Screenshot 2026-11-19 002757" src="https://github.com/user-attachments/assets/ac45f1b3-f99e-4279-bb82-48416a320f0c" />
+|
 ---
-
 ## Tech Stack**(EDIT THESE)**
 * **Frontend:** HTML5, CSS3, JavaScript (or React, Vue, Tailwind CSS)
 * **Backend:** Node.js, Express (or Python/Django, PHP)
