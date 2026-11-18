@@ -50,10 +50,18 @@ EquiTrack is a digital tracking system aimed to note down broken equipment, tool
 | <img width="959" height="454" alt="Screenshot 2026-11-19 002750" src="https://github.com/user-attachments/assets/c91725d8-c35f-4aec-be04-1b5435eb20da" /> <img width="756" height="607" alt="Screenshot 2026-11-19 002757" src="https://github.com/user-attachments/assets/ac45f1b3-f99e-4279-bb82-48416a320f0c" /> |
 ---
 ## Tech Stack**(EDIT THESE)**
-* **Frontend:** HTML5, CSS3, JavaScript (or React, Vue, Tailwind CSS)
-* **Backend:** Node.js, Express (or Python/Django, PHP)
-* **Database:** MongoDB (or PostgreSQL, MySQL, Firebase)
-* **Deployment:** Vercel / Render / GitHub Pages
+* **Frontend:**
+   * React 18.3 (UI library)
+   * React Router 6.26 (client-side routing)
+   * Vite 5.4 (dev server and bundler)
+   * Tailwind CSS 3.4, with PostCSS and Autoprefixer (styling)
+   * Hanken Grotesk and Jost, loaded from Google Fonts
+* **Backend:** PHP 8.1+
+* **Database:** MySQL 5.7+ or MariaDB 10.3+
+* **Deployment:**
+   * Python scripts for API tests
+   * Local development on XAMPP or WAMP, with Vite proxying to the PHP server
+   * Apache routing for deployment
 
 ---
 
