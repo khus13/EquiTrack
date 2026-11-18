@@ -1,10 +1,10 @@
 # EquiTrack
 
-A brief, one- to two-sentence summary explaining what your web application does and the problem it solves. **(FILL IN)**
+EquiTrack is a digital tracking system aimed to note down broken equipment, tools, and other facilities within the University of San Carlos - Talamban Campus. The system readily centralizes all reports of faulty utilities, bridging communication and resolution gaps between students, maintenance staff, and adminstrators.
 
-* **Course:** [Course Code & Name, e.g., CS 301 - Web Development]**(FILL IN)**
-* **Instructor:** [Professor's Name]**(FILL IN)**
-* **Semester:** [e.g., Fall 2026]**(FILL IN)**
+* **Course:** CIS 2102 - Web Development II
+* **Instructor:** Sir Chris Ray Belarmino
+* **Semester:** First Semester, Academic Year 2026-2027
 * **Live Demo:** [Link to deployed site on Vercel, Netlify, or GitHub Pages]**(FILL IN)**
 
 ---
