@@ -21,10 +21,10 @@ EquiTrack is a digital tracking system aimed to note down broken equipment, tool
 ---
 
 ## Features**(FILL IN)**
-* **User Authentication:** Secure sign-up and login functionality.
-* **Responsive Design:** Optimized for desktop, tablet, and mobile screens.
-* **[Core Feature 1]:** Brief description of what this feature allows users to do.
-* **[Core Feature 2]:** Brief description of another key functionality.
+* **User Authentication:** Users (students) can login and sign up.
+* **Case Reporting:** Users can file case reports of any defective facilities found as well as browse and view reports made by others.
+* **Verification & Modification of Reports:** Assigned maintenance staff can change the statuses of reports once the given facilities have been resolved physically.
+* **Administration:** Administrators can control accounts as well as check logs for login and security.
 
 ---
 
