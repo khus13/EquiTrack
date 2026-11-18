@@ -1,11 +1,11 @@
 # EquiTrack
 
-A brief, one- to two-sentence summary explaining what your web application does and the problem it solves.
+A brief, one- to two-sentence summary explaining what your web application does and the problem it solves. **(FILL IN)**
 
-* **Course:** [Course Code & Name, e.g., CS 301 - Web Development]
-* **Instructor:** [Professor's Name]
-* **Semester:** [e.g., Fall 2026]
-* **Live Demo:** [Link to deployed site on Vercel, Netlify, or GitHub Pages]
+* **Course:** [Course Code & Name, e.g., CS 301 - Web Development]**(FILL IN)**
+* **Instructor:** [Professor's Name]**(FILL IN)**
+* **Semester:** [e.g., Fall 2026]**(FILL IN)**
+* **Live Demo:** [Link to deployed site on Vercel, Netlify, or GitHub Pages]**(FILL IN)**
 
 ---
 
@@ -20,7 +20,7 @@ A brief, one- to two-sentence summary explaining what your web application does 
 
 ---
 
-## Features
+## Features**(FILL IN)**
 * **User Authentication:** Secure sign-up and login functionality.
 * **Responsive Design:** Optimized for desktop, tablet, and mobile screens.
 * **[Core Feature 1]:** Brief description of what this feature allows users to do.
@@ -28,7 +28,7 @@ A brief, one- to two-sentence summary explaining what your web application does 
 
 ---
 
-## Screenshots
+## Screenshots**(FILL IN)**
 
 | Home Page | Dashboard / Main View |
 | :---: | :---: |
@@ -37,7 +37,7 @@ _(ADD MORE SCREENSHOTS OF OUR FEATURES!)_
 
 ---
 
-## Tech Stack
+## Tech Stack**(EDIT THESE)**
 * **Frontend:** HTML5, CSS3, JavaScript (or React, Vue, Tailwind CSS)
 * **Backend:** Node.js, Express (or Python/Django, PHP)
 * **Database:** MongoDB (or PostgreSQL, MySQL, Firebase)
@@ -45,7 +45,7 @@ _(ADD MORE SCREENSHOTS OF OUR FEATURES!)_
 
 ---
 
-## Getting Started
+## Getting Started**(FILL IN/TO BE CHECKED BY US)**
 
 Follow these instructions to run a local copy of the project on your machine for grading or testing.
 
@@ -81,7 +81,7 @@ Make sure you have the following installed:
 
 ---
 
-## Project Structure
+## Project Structure**(FILL IN/ WE WILL HELP WITH THIS)**
 ```text
 ├── public/              # Static assets (images, icons, fonts)
 ├── src/
@@ -96,7 +96,7 @@ Make sure you have the following installed:
 
 ---
 
-## Team Members
+## Team Members**(FILL IN)**
 * **[Student Name 1]** – Frontend Development & UI Design – [GitHub](https://github.com)
 * **[Student Name 2]** – Backend & Database Architecture – [GitHub](https://github.com)
 * **[Student Name 3]** – API Integration & Testing – [GitHub](https://github.com)
@@ -104,6 +104,6 @@ Make sure you have the following installed:
 
 ---
 
-## Acknowledgments
-* Inspiration or starter code references (e.g., [Make a README](https://www.makeareadme.com/) or [Best-README-Template](https://github.com/othneildrew/Best-README-Template)).
+## Acknowledgments**(FILL IN)**
+* Inspiration or starter code references (e.g., [Make a README](https://www.makeareadme.com/) or [Best-README-Template](https://github.com/othneildrew/Best-README-Template)).**(MAY BE REMOVED)**
 * Third-party APIs, icon libraries (e.g., FontAwesome, Lucide), or tutorials used.
