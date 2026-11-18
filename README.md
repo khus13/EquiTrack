@@ -47,8 +47,7 @@ EquiTrack is a digital tracking system aimed to note down broken equipment, tool
 | Editing Profile Info |
 | <img width="959" height="454" alt="Screenshot 2026-11-19 002737" src="https://github.com/user-attachments/assets/7fa972fc-09ad-444d-a42c-914253268242" /> |
 | Account Password & Security |
-| <img width="959" height="454" alt="Screenshot 2026-11-19 002750" src="https://github.com/user-attachments/assets/c91725d8-c35f-4aec-be04-1b5435eb20da" /> <img width="756" height="607" alt="Screenshot 2026-11-19 002757" src="https://github.com/user-attachments/assets/ac45f1b3-f99e-4279-bb82-48416a320f0c" />
-|
+| <img width="959" height="454" alt="Screenshot 2026-11-19 002750" src="https://github.com/user-attachments/assets/c91725d8-c35f-4aec-be04-1b5435eb20da" /> <img width="756" height="607" alt="Screenshot 2026-11-19 002757" src="https://github.com/user-attachments/assets/ac45f1b3-f99e-4279-bb82-48416a320f0c" /> |
 ---
 ## Tech Stack**(EDIT THESE)**
 * **Frontend:** HTML5, CSS3, JavaScript (or React, Vue, Tailwind CSS)
