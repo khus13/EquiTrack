@@ -1,6 +1,6 @@
 # EquiTrack
 
-EquiTrack is a digital tracking system aimed to note down broken equipment, tools, and other facilities within the University of San Carlos - Talamban Campus. The system readily centralizes all reports of faulty utilities, bridging communication and resolution gaps between students, maintenance staff, and adminstrators.
+EquiTrack is a digital tracking system aimed to note down broken equipment, tools, and other facilities within the University of San Carlos - Talamban Campus. The system readily centralizes all reports of faulty utilities, bridging communication and resolution gaps between students, maintenance staff, and administrators.
 
 * **Course:** CIS 2102 - Web Development II
 * **Instructor:** Sir Chris Ray Belarmino
