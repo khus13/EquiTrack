@@ -28,7 +28,7 @@ EquiTrack is a digital tracking system aimed to note down broken equipment, tool
 
 ---
 
-## Screenshots**(FILL IN)**
+## Screenshots
 
 | Home Page |
 | :---: |
@@ -157,7 +157,7 @@ EquiTrack/
 * **Khugo Sebastian Enriquez Auditor** – Frontend Development & UI Design – [GitHub](https://github.com)
 * **Andrea Keisha To Chip** – Backend & Database Architecture – [GitHub](https://github.com)
 * **Enoch Tabotabo Matugas** – API Integration & Testing – [GitHub](https://github.com)
-* **Nathan Braxton Candelario Ares** – Documentation & (add something) – [GitHub](https://github.com)
+* **Nathan Braxton Candelario Ares** – Documentation & Project Manager – [GitHub](https://github.com)
 
 ---
 
