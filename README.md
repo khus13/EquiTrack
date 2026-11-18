@@ -95,24 +95,69 @@ Make sure you have the following installed:
 
 ## Project Structure**(FILL IN/ WE WILL HELP WITH THIS)**
 ```text
-├── public/              # Static assets (images, icons, fonts)
-├── src/
-│   ├── components/      # Reusable UI components
-│   ├── pages/           # Main application views/pages
-│   ├── styles/          # CSS / styling files
-│   └── app.js           # Main application entry point
-├── .env.example         # Sample environment variables
-├── package.json         # Project dependencies and scripts
-└── README.md            # Project documentation
+EquiTrack/
+├── README.md                      # Project overview, course info, features
+├── package-lock.json              # (empty root lockfile)
+└── equitrack/
+    ├── README.md                  # Full docs: setup, test accounts, deployment
+    ├── database/
+    │   ├── schema.sql             # Tables, keys, indexes + seed data
+    │   └── migrate_from_legacy.sql  # Optional: copy data from the old EquiTrack DB
+    ├── backend/                   # Plain PHP 8.1+ API (PDO, sessions)
+    │   ├── .env.example           # Sample environment variables (DB_HOST, DB_NAME...)
+    │   ├── router.php             # Router for PHP's built-in dev server
+    │   ├── api/
+    │   │   ├── index.php          # Front controller
+    │   │   ├── Router.php         # Request router
+    │   │   └── routes.php         # All endpoints
+    │   ├── config/                # config.php (.env loader), Database.php (PDO)
+    │   ├── controllers/           # Auth, Profile, User, Report, Equipment, Reference, Stats, Audit, File
+    │   ├── models/                # User, Report, Equipment, Reference, Stats, AuditLog (all SQL)
+    │   ├── middleware/            # Auth, Role, Csrf, Cors
+    │   ├── helpers/               # Response, Request, Validator, Uploader, Paginator
+    │   ├── scripts/               # create_user.php, backfill_report_equipment.php
+    │   └── uploads/reports/       # Uploaded report photos
+    ├── frontend/                  # React 18 + Vite + Tailwind
+    │   ├── public/                # Static assets (favicon.png, logo.png)
+    │   ├── index.html             # Vite HTML entry
+    │   ├── package.json           # Dependencies and scripts (dev, build, preview)
+    │   ├── vite.config.js         # Dev proxy: /api -> PHP :8000
+    │   ├── tailwind.config.js     # Design tokens
+    │   ├── postcss.config.js
+    │   ├── dist/                  # Production build output
+    │   └── src/
+    │       ├── main.jsx           # Application entry point
+    │       ├── App.jsx            # Route map
+    │       ├── index.css          # Tailwind layers / global styles
+    │       ├── components/        # Reusable UI components
+    │       │   ├── ui/            # Button, Form, Badges, Modal, Data, Feedback, Icons, SelectControl
+    │       │   ├── layout/        # Navbar, Sidebar, Footer, Logo, Layouts
+    │       │   ├── ErrorBoundary.jsx
+    │       │   ├── ProtectedRoute.jsx
+    │       │   ├── LocationSelects.jsx
+    │       │   └── ReportRow.jsx
+    │       ├── pages/             # Main application views
+    │       │   ├── Landing.jsx, Login.jsx, Register.jsx, FAQs.jsx
+    │       │   ├── Directory.jsx, ReportDetail.jsx, NotFound.jsx
+    │       │   ├── user/          # UserDashboard, SubmitReport, MyReports
+    │       │   ├── account/       # AccountProfile, AccountSecurity
+    │       │   ├── admin/         # AdminDashboard, ManageReports, Statistics, ReferenceData, DirectoryManage
+    │       │   └── superadmin/    # Users, AuditLogs
+    │       ├── context/           # AuthContext, MetaContext, ToastContext
+    │       ├── hooks/             # useApi, useListQuery
+    │       └── lib/               # api, constants, format, validators
+    └── tests/
+        ├── api_test.py            # Automated API tests
+        └── build_sqlite.py        # SQLite test DB builder
 ```
 
 ---
 
-## Team Members**(FILL IN)**
-* **[Student Name 1]** – Frontend Development & UI Design – [GitHub](https://github.com)
-* **[Student Name 2]** – Backend & Database Architecture – [GitHub](https://github.com)
-* **[Student Name 3]** – API Integration & Testing – [GitHub](https://github.com)
-* **[Student Name 3]** – Documentation & (add something) – [GitHub](https://github.com)
+## Team Members
+* **Khugo Sebastian Enriquez Auditor** – Frontend Development & UI Design – [GitHub](https://github.com)
+* **Andrea Keisha To Chip** – Backend & Database Architecture – [GitHub](https://github.com)
+* **Enoch Tabotabo Matugas** – API Integration & Testing – [GitHub](https://github.com)
+* **Nathan Braxton Candelario Ares** – Documentation & (add something) – [GitHub](https://github.com)
 
 ---
 
