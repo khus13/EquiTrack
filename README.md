@@ -162,8 +162,8 @@ EquiTrack/
 ---
 
 ## Team Members
-* **Khugo Sebastian Enriquez Auditor** – Frontend Development & UI Design – [GitHub](https://github.com)
-* **Andrea Keisha To Chip** – Backend & Database Architecture – [GitHub](https://github.com)
+* **Khugo Sebastian Enriquez Auditor** – UI/UX Developer and Version Control Manager – [GitHub](https://github.com)
+* **Andrea Keisha To Chip** – Frontend & Database Architecture – [GitHub](https://github.com)
 * **Enoch Tabotabo Matugas** – API Integration & Testing – [GitHub](https://github.com)
 * **Nathan Braxton Candelario Ares** – Documentation & Project Manager – [GitHub](https://github.com)
 
