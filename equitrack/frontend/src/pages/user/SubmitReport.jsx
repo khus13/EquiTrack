@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Select, TextInput, Textarea, FileUpload } from '../../components/ui/Form.jsx';
+import { Select, TextInput, Textarea, MultipleFileUpload } from '../../components/ui/Form.jsx';
 import { Alert } from '../../components/ui/Feedback.jsx';
 import { Breadcrumbs } from '../../components/ui/Data.jsx';
 import Button from '../../components/ui/Button.jsx';
@@ -11,7 +11,7 @@ import { api, ApiError, notifyReportSubmitted } from '../../lib/api.js';
 import { PRIORITIES } from '../../lib/constants.js';
 import { validateReport } from '../../lib/validators.js';
 
-const EMPTY = { item_name: '', category_id: '', campus_id: '', building_id: '', room_id: '', location_note: '',
+const EMPTY = { item_name: '', category_id: '', campus_id: '', building_name: '', room_name: '', location_note: '',
   damage_type_id: '', description: '', priority: 'Medium', equipment_id: '' };
 
 const PRIORITY_HINT = {
@@ -20,13 +20,13 @@ const PRIORITY_HINT = {
 };
 
 export default function SubmitReport() {
-  const { meta, loading: metaLoading, error: metaError } = useMeta();
+  const { meta, loading: metaLoading, error: metaError, reload: reloadMeta } = useMeta();
   const toast = useToast();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [params] = useSearchParams();
   const [values, setValues] = useState(EMPTY);
-  const [photo, setPhoto] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -41,7 +41,7 @@ export default function SubmitReport() {
     if (!equipmentId) return;
     api.get(`/equipment/${equipmentId}`).then((e) => setValues((v) => ({
       ...v, equipment_id: String(e.id), item_name: e.name, category_id: String(e.category_id),
-      campus_id: String(e.campus_id), building_id: String(e.building_id), room_id: String(e.room_id),
+      campus_id: String(e.campus_id), building_name: e.building_name, room_name: e.room_name,
     }))).catch(() => {});
   }, [equipmentId]);
 
@@ -51,17 +51,18 @@ export default function SubmitReport() {
   const submit = async (e) => {
     e.preventDefault();
     setFormError('');
-    const found = validateReport(values, photo);
+    const found = validateReport(values, photos);
     setErrors(found);
     if (Object.keys(found).length) { setFormError('Please fix the highlighted fields.'); return; }
 
     const form = new FormData();                         // FormData is needed for the file upload
     Object.entries(values).forEach(([k, v]) => { if (v !== '') form.append(k, v.trim ? v.trim() : v); });
-    if (photo) form.append('photo', photo);
+    photos.forEach((photo) => form.append('photos[]', photo));
 
     setBusy(true);
     try {
       const res = await api.withMessage.postForm('/reports', form);
+      await reloadMeta();
       notifyReportSubmitted();
       toast.success(`Report ${res.data.reference_no} submitted. Thank you!`);
       navigate(`${isStaffView ? '/admin/reports' : '/reports'}/${res.data.id}`);
@@ -96,8 +97,11 @@ export default function SubmitReport() {
             <Select label="Priority" required hint={PRIORITY_HINT[values.priority]} options={PRIORITIES.map((p) => ({ value: p, label: p }))} {...field('priority')} />
           </div>
 
-          <Textarea label="Description" required placeholder="Describe what is broken, what happens, and when you noticed it." maxLength={2000} {...field('description')} />
-          <FileUpload file={photo} onChange={setPhoto} error={errors.photo} />
+          <Textarea label="Description" hint="Optional: Add details about what is broken, what happens, and when you noticed it." placeholder="Describe the problem (optional)." maxLength={2000} {...field('description')} />
+          <MultipleFileUpload files={photos} onChange={(files) => {
+            setPhotos(files);
+            setErrors((current) => ({ ...current, photos: undefined }));
+          }} error={errors.photos} />
 
           <div className="flex flex-wrap justify-center gap-3 pt-3">
             <Button variant="outline" onClick={() => navigate(-1)} disabled={busy}>Cancel</Button>

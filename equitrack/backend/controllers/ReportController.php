@@ -63,8 +63,8 @@ class ReportController
             'item_name'      => Validator::clean(Request::input('item_name')),
             'category_id'    => Request::input('category_id'),
             'campus_id'      => Request::input('campus_id'),
-            'building_id'    => Request::input('building_id'),
-            'room_id'        => Request::input('room_id'),
+            'building_name'  => Validator::clean(Request::input('building_name')),
+            'room_name'      => Validator::clean(Request::input('room_name')),
             'location_note'  => Validator::clean(Request::input('location_note')),
             'damage_type_id' => Request::input('damage_type_id'),
             'description'    => Validator::clean(Request::input('description')),
@@ -74,10 +74,10 @@ class ReportController
             'item_name'      => 'required|max:150',
             'category_id'    => 'required|int',
             'campus_id'      => 'required|int',
-            'building_id'    => 'required|int',
-            'room_id'        => 'required|int',
+            'building_name'  => 'required|max:120',
+            'room_name'      => 'required|max:120',
             'damage_type_id' => 'required|int',
-            'description'    => 'required|min:10|max:2000',
+            'description'    => 'max:2000',
             'priority'       => 'required|in:' . implode(',', Report::PRIORITIES),
             'location_note'  => 'max:190',
         ]);
@@ -91,22 +91,18 @@ class ReportController
         if (!isset($errors['campus_id']) && !Reference::exists('campuses', (int) $data['campus_id'])) {
             $errors['campus_id'] = 'Select a valid campus.';
         }
-        if (!isset($errors['building_id']) && !isset($errors['campus_id'])
-            && !Database::value('SELECT 1 FROM buildings WHERE id = ? AND campus_id = ?', [(int) $data['building_id'], (int) $data['campus_id']])) {
-            $errors['building_id'] = 'That building is not on the selected campus.';
-        }
-        if (!isset($errors['room_id']) && !isset($errors['building_id'])
-            && !Database::value('SELECT 1 FROM rooms WHERE id = ? AND building_id = ?', [(int) $data['room_id'], (int) $data['building_id']])) {
-            $errors['room_id'] = 'That room is not in the selected building.';
-        }
         if ($errors) Response::validation($errors);
 
+        $location = Reference::resolveLocation((int) $data['campus_id'], $data['building_name'], $data['room_name']);
+        $data['building_id'] = $location['building_id'];
+        $data['room_id'] = $location['room_id'];
         foreach (['category_id', 'campus_id', 'building_id', 'room_id', 'damage_type_id'] as $key) {
             $data[$key] = (int) $data[$key];
         }
         $data['location_note'] = $data['location_note'] !== '' ? $data['location_note'] : null;
 
         Report::updateDetails($id, $data);
+        AuditLog::logNewLocations((int) $me['id'], $location, (int) $data['campus_id'], $data['building_name'], $data['room_name']);
         AuditLog::log((int) $me['id'], 'report.update', 'report', $id, ['item' => $data['item_name']]);
         Response::ok(Report::find($id), 'Report updated.');
     }
@@ -135,7 +131,7 @@ class ReportController
         Response::ok(Report::find($id), 'Photo added to report.');
     }
 
-    /** POST /api/reports   (multipart/form-data because of the photo) */
+    /** POST /api/reports   (multipart/form-data because of the photos) */
     public static function store(array $p): never
     {
         $me = AuthMiddleware::user();
@@ -143,8 +139,8 @@ class ReportController
             'item_name'      => Validator::clean(Request::input('item_name')),
             'category_id'    => Request::input('category_id'),
             'campus_id'      => Request::input('campus_id'),
-            'building_id'    => Request::input('building_id'),
-            'room_id'        => Request::input('room_id'),
+            'building_name'  => Validator::clean(Request::input('building_name')),
+            'room_name'      => Validator::clean(Request::input('room_name')),
             'location_note'  => Validator::clean(Request::input('location_note')),
             'damage_type_id' => Request::input('damage_type_id'),
             'description'    => Validator::clean(Request::input('description')),
@@ -156,54 +152,54 @@ class ReportController
             'item_name'      => 'required|max:150',
             'category_id'    => 'required|int',
             'campus_id'      => 'required|int',
-            'building_id'    => 'required|int',
-            'room_id'        => 'required|int',
+            'building_name'  => 'required|max:120',
+            'room_name'      => 'required|max:120',
             'damage_type_id' => 'required|int',
-            'description'    => 'required|min:10|max:2000',
+            'description'    => 'max:2000',
             'priority'       => 'required|in:' . implode(',', Report::PRIORITIES),
             'location_note'  => 'max:190',
         ]);
 
-        // The chosen ids must exist AND fit together (room belongs to building belongs to campus).
+        // The campus must exist; typed buildings and rooms are resolved below.
         if (!isset($errors['category_id'])    && !Reference::exists('categories', (int) $data['category_id']))       $errors['category_id'] = 'Select a valid category.';
         if (!isset($errors['damage_type_id']) && !Reference::exists('damage_types', (int) $data['damage_type_id'])) $errors['damage_type_id'] = 'Select a valid damage type.';
         if (!isset($errors['campus_id']) && !Reference::exists('campuses', (int) $data['campus_id']))               $errors['campus_id'] = 'Select a valid campus.';
-        if (!isset($errors['building_id']) && !isset($errors['campus_id'])
-            && !Database::value('SELECT 1 FROM buildings WHERE id = ? AND campus_id = ?', [(int) $data['building_id'], (int) $data['campus_id']])) {
-            $errors['building_id'] = 'That building is not on the selected campus.';
-        }
-        if (!isset($errors['room_id']) && !isset($errors['building_id'])
-            && !Database::value('SELECT 1 FROM rooms WHERE id = ? AND building_id = ?', [(int) $data['room_id'], (int) $data['building_id']])) {
-            $errors['room_id'] = 'That room is not in the selected building.';
-        }
         $equipmentId = null;
         if ($data['equipment_id'] !== null && $data['equipment_id'] !== '') {
             if (!Reference::exists('equipment', (int) $data['equipment_id'])) $errors['equipment_id'] = 'Selected equipment does not exist.';
             else $equipmentId = (int) $data['equipment_id'];
-        } elseif (!isset($errors['item_name']) && !isset($errors['category_id']) && !isset($errors['campus_id'])
-            && !isset($errors['building_id']) && !isset($errors['room_id'])) {
-            $equipmentId = Equipment::matchReport($data);
         }
 
-        // Optional photo (jpg/png, max 2MB) - validated BEFORE saving anything.
-        $upload = Uploader::saveImage($_FILES['photo'] ?? null);
-        if ($upload['error']) $errors['photo'] = $upload['error'];
+        // Optional photos (jpg/png, max 2MB each) - validated BEFORE saving anything.
+        $upload = Uploader::saveImages($_FILES['photos'] ?? $_FILES['photo'] ?? null);
+        if ($upload['error']) $errors['photos'] = $upload['error'];
 
         if ($errors) {
-            if ($upload['file']) Uploader::delete($upload['file']['file_path']);    // do not keep files of rejected forms
+            foreach ($upload['files'] as $image) Uploader::delete($image['file_path']);
             Response::validation($errors);
         }
+
+        try {
+            $location = Reference::resolveLocation((int) $data['campus_id'], $data['building_name'], $data['room_name']);
+        } catch (Throwable $e) {
+            foreach ($upload['files'] as $image) Uploader::delete($image['file_path']);
+            throw $e;
+        }
+        $data['building_id'] = $location['building_id'];
+        $data['room_id'] = $location['room_id'];
+        if ($equipmentId === null) $equipmentId = Equipment::matchReport($data);
 
         $data['equipment_id'] = $equipmentId;
         foreach (['category_id', 'campus_id', 'building_id', 'room_id', 'damage_type_id'] as $k) $data[$k] = (int) $data[$k];
         $data['location_note'] = $data['location_note'] !== '' ? $data['location_note'] : null;
 
         try {
-            $id = Report::create($data, (int) $me['id'], $upload['file']);
+            $id = Report::create($data, (int) $me['id'], $upload['files']);
         } catch (Throwable $e) {
-            if ($upload['file']) Uploader::delete($upload['file']['file_path']);
+            foreach ($upload['files'] as $image) Uploader::delete($image['file_path']);
             throw $e;
         }
+        AuditLog::logNewLocations((int) $me['id'], $location, (int) $data['campus_id'], $data['building_name'], $data['room_name']);
         AuditLog::log((int) $me['id'], 'report.create', 'report', $id, ['item' => $data['item_name'], 'priority' => $data['priority']]);
         Response::created(Report::find($id), 'Report submitted. Thank you!');
     }

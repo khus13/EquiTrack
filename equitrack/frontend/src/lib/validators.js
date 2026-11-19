@@ -4,7 +4,7 @@
  * so these are for convenience, not for security.
  * Each function returns an object like { email: 'Enter a valid e-mail.' } (empty = valid).
  */
-import { ACCEPTED_IMAGE_TYPES, MAX_UPLOAD_BYTES } from './constants.js';
+import { ACCEPTED_IMAGE_TYPES, MAX_REPORT_IMAGES, MAX_UPLOAD_BYTES } from './constants.js';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -60,7 +60,7 @@ export function imageProblem(file) {
   return null;
 }
 
-export function validateReport(v, photo) {
+export function validateReport(v, photos = []) {
   const e = {};
   if (!v.item_name.trim()) e.item_name = 'Name of the item is required.';
   else if (v.item_name.trim().length > 150) e.item_name = 'Keep the name under 150 characters.';
@@ -70,9 +70,11 @@ export function validateReport(v, photo) {
   if (!v.room_id) e.room_id = 'Select the room / location.';
   if (!v.damage_type_id) e.damage_type_id = 'Select the type of damage.';
   if (!v.priority) e.priority = 'Select a priority.';
-  if (!v.description.trim()) e.description = 'Please describe the problem.';
-  else if (v.description.trim().length < 10) e.description = 'Add a little more detail (at least 10 characters).';
-  const img = imageProblem(photo);
-  if (img) e.photo = img;
+  if (v.description.trim().length > 2000) e.description = 'Keep the description under 2000 characters.';
+  if (photos.length > MAX_REPORT_IMAGES) e.photos = `Choose no more than ${MAX_REPORT_IMAGES} photos.`;
+  else {
+    const invalidPhoto = photos.find(imageProblem);
+    if (invalidPhoto) e.photos = imageProblem(invalidPhoto);
+  }
   return e;
 }

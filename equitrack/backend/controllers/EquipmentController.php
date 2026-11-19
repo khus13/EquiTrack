@@ -34,10 +34,12 @@ class EquipmentController
     /** POST /api/equipment */
     public static function store(array $p): never
     {
-        [$d, $errors] = self::validated(null);
+        [$d, $errors, $location] = self::validated(null);
         if ($errors) Response::validation($errors);
         $id = Equipment::create($d);
-        AuditLog::log((int) AuthMiddleware::user()['id'], 'equipment.create', 'equipment', $id, ['asset_tag' => $d['asset_tag']]);
+        $userId = (int) AuthMiddleware::user()['id'];
+        AuditLog::logNewLocations($userId, $location, $d['campus_id'], $d['building_name'], $d['room_name']);
+        AuditLog::log($userId, 'equipment.create', 'equipment', $id, ['asset_tag' => $d['asset_tag']]);
         Response::created(Equipment::find($id), 'Equipment added.');
     }
 
@@ -46,10 +48,12 @@ class EquipmentController
     {
         $id = (int) $p['id'];
         Equipment::find($id) ?? Response::error('Equipment not found.', 404);
-        [$d, $errors] = self::validated($id);
+        [$d, $errors, $location] = self::validated($id);
         if ($errors) Response::validation($errors);
         Equipment::update($id, $d);
-        AuditLog::log((int) AuthMiddleware::user()['id'], 'equipment.update', 'equipment', $id, ['asset_tag' => $d['asset_tag']]);
+        $userId = (int) AuthMiddleware::user()['id'];
+        AuditLog::logNewLocations($userId, $location, $d['campus_id'], $d['building_name'], $d['room_name']);
+        AuditLog::log($userId, 'equipment.update', 'equipment', $id, ['asset_tag' => $d['asset_tag']]);
         Response::ok(Equipment::find($id), 'Equipment updated.');
     }
 
@@ -70,7 +74,9 @@ class EquipmentController
             'name'        => Validator::clean(Request::input('name')),
             'category_id' => Request::input('category_id'),
             'type_id'     => Request::input('type_id'),
-            'room_id'     => Request::input('room_id'),
+            'campus_id'   => Request::input('campus_id'),
+            'building_name' => Validator::clean(Request::input('building_name')),
+            'room_name'   => Validator::clean(Request::input('room_name')),
             'status'      => (string) Request::input('status', 'operational'),
             'description' => Validator::clean(Request::input('description')),
         ];
@@ -78,7 +84,9 @@ class EquipmentController
             'asset_tag'   => 'required|max:40',
             'name'        => 'required|max:150',
             'category_id' => 'required|int',
-            'room_id'     => 'required|int',
+            'campus_id'   => 'required|int',
+            'building_name' => 'required|max:120',
+            'room_name'   => 'required|max:120',
             'status'      => 'required|in:' . implode(',', self::STATUSES),
             'description' => 'max:1000',
         ]);
@@ -87,7 +95,7 @@ class EquipmentController
             elseif (Equipment::assetTagTaken($d['asset_tag'], $id)) $errors['asset_tag'] = 'That asset tag is already used.';
         }
         if (!isset($errors['category_id']) && !Reference::exists('categories', (int) $d['category_id'])) $errors['category_id'] = 'Select a valid category.';
-        if (!isset($errors['room_id']) && !Reference::exists('rooms', (int) $d['room_id'])) $errors['room_id'] = 'Select a valid room.';
+        if (!isset($errors['campus_id']) && !Reference::exists('campuses', (int) $d['campus_id'])) $errors['campus_id'] = 'Select a valid campus.';
 
         $typeId = null;
         if ($d['type_id'] !== null && $d['type_id'] !== '') {
@@ -96,9 +104,14 @@ class EquipmentController
             } else $typeId = (int) $d['type_id'];
         }
         $d['category_id'] = (int) $d['category_id'];
-        $d['room_id']     = (int) $d['room_id'];
         $d['type_id']     = $typeId;
         $d['description'] = $d['description'] !== '' ? $d['description'] : null;
-        return [$d, $errors];
+        $location = null;
+        if (!$errors) {
+            $d['campus_id'] = (int) $d['campus_id'];
+            $location = Reference::resolveLocation($d['campus_id'], $d['building_name'], $d['room_name']);
+            $d['room_id'] = $location['room_id'];
+        }
+        return [$d, $errors, $location];
     }
 }

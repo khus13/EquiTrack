@@ -129,7 +129,7 @@ migration → copy old photos into `backend/uploads/reports/`).
 | `DB_HOST` `DB_PORT` `DB_NAME` `DB_USER` `DB_PASS` | MySQL connection | `127.0.0.1` `3306` `equitrack` `root` *(empty)* |
 | `CORS_ALLOWED_ORIGINS` | Extra front-end origins (comma-separated) | `http://localhost:5173,...` |
 | `ALLOWED_EMAIL_DOMAINS` | Restrict self-registration, e.g. `usc.edu.ph` (empty = any) | *(empty)* |
-| `MAX_UPLOAD_MB` | Photo size limit (PHP's `upload_max_filesize` must be ≥ this) | `2` |
+| `MAX_UPLOAD_MB` | Per-photo size limit (PHP's `upload_max_filesize` must be ≥ this); reports accept up to 5 photos | `2` |
 
 Frontend (optional) `frontend/.env`: `VITE_API_BASE` – only if the API is on another address.
 
@@ -184,7 +184,7 @@ Run it before submitting changes.
 - [ ] Login with wrong password → error; correct → lands on the role's home page
 - [ ] Visit `/admin` as User → *Unauthorized*; visit `/dashboard` logged out → redirected to login
 - [ ] Submit report: empty form shows errors; GIF or >2 MB image rejected; valid report + photo → appears in *My reports*
-- [ ] Campus → Building → Room dropdowns filter each other
+- [ ] Campus filters Building suggestions; new Building/Room names are saved under the selected parents
 - [ ] *My reports*: search, status filter, pagination, delete a **Pending** report
 - [ ] Directory: filter by category / campus / building / type, keyword search, pagination, “Report a problem” pre-fills the form
 - [ ] Admin dashboard counts match the table; “To repair” shows Urgent first
@@ -204,7 +204,7 @@ Run it before submitting changes.
 |---------|-----|
 | “Cannot reach the server” | PHP server (step 3) is not running, or wrong port |
 | `Something went wrong` / DB error | Check `backend/.env` credentials; MySQL running; `schema.sql` imported |
-| Photo upload fails | `upload_max_filesize`/`post_max_size` ≥ 2M in `php.ini`; `uploads/reports` writable |
+| Photo upload fails | `upload_max_filesize`/`post_max_size` support the selected files in `php.ini`; `uploads/reports` writable |
 | “Security token missing” (419) | Refresh the page (session expired) |
 | Blank page after build on Apache | Enable `mod_rewrite` + `AllowOverride All` so `.htaccess` works |
 

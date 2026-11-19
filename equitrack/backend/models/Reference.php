@@ -92,6 +92,43 @@ class Reference
         return (bool) Database::value("SELECT 1 FROM $table WHERE id = ?", [$id]);
     }
 
+    /** Find or create a building and room within the selected campus hierarchy. */
+    public static function resolveLocation(int $campusId, string $buildingName, string $roomName): array
+    {
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
+        try {
+            [$buildingId, $buildingCreated] = self::findOrCreateLocation('buildings', 'campus_id', $campusId, $buildingName);
+            [$roomId, $roomCreated] = self::findOrCreateLocation('rooms', 'building_id', $buildingId, $roomName);
+            $pdo->commit();
+            return [
+                'building_id' => $buildingId,
+                'room_id' => $roomId,
+                'building_created' => $buildingCreated,
+                'room_created' => $roomCreated,
+            ];
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    private static function findOrCreateLocation(string $table, string $parentColumn, int $parentId, string $name): array
+    {
+        $find = "SELECT id FROM $table WHERE $parentColumn = ? AND LOWER(TRIM(name)) = LOWER(TRIM(?))";
+        $id = Database::value($find, [$parentId, $name]);
+        if ($id !== null) return [(int) $id, false];
+
+        try {
+            $id = Database::insert("INSERT INTO $table ($parentColumn, name) VALUES (?, ?)", [$parentId, $name]);
+            return [$id, true];
+        } catch (PDOException $e) {
+            $id = Database::value($find, [$parentId, $name]);
+            if ($id === null) throw $e;
+            return [(int) $id, false];
+        }
+    }
+
     public static function create(string $key, array $data): int
     {
         $r = self::resource($key);

@@ -13,6 +13,7 @@ export const homePathFor = (user) =>
 export const STATUSES = ['Pending', 'In Progress', 'Solved'];
 export const PRIORITIES = ['Low', 'Medium', 'High', 'Urgent'];
 export const PAGE_SIZE = 10;
+export const MAX_REPORT_IMAGES = 5;
 
 export const EQUIPMENT_STATUS_LABEL = {
   operational: 'Operational',

@@ -226,8 +226,8 @@ class Report
         return $summary;
     }
 
-    /** Insert the report, its photo and the first timeline entry in ONE transaction. */
-    public static function create(array $d, int $userId, ?array $image): int
+    /** Insert the report, its photos and the first timeline entry in ONE transaction. */
+    public static function create(array $d, int $userId, array $images): int
     {
         $pdo = Database::pdo();
         $pdo->beginTransaction();
@@ -247,7 +247,7 @@ class Report
                 Database::run('UPDATE reports SET equipment_id = ? WHERE id = ?', [$equipmentId, $id]);
             }
 
-            if ($image !== null) {
+            foreach ($images as $image) {
                 Database::run('INSERT INTO report_images (report_id, file_path, original_name, mime_type, file_size) VALUES (?,?,?,?,?)',
                     [$id, $image['file_path'], $image['original_name'], $image['mime_type'], $image['file_size']]);
             }

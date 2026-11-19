@@ -15,12 +15,12 @@ import { EQUIPMENT_STATUS_LABEL } from '../../lib/constants.js';
 import { IconPlus, IconEdit, IconTrash, IconBox } from '../../components/ui/Icons.jsx';
 import { equipmentImageUrl } from '../../lib/api.js';
 
-const BLANK = { asset_tag: '', name: '', category_id: '', type_id: '', campus_id: '', building_id: '', room_id: '', status: 'operational', description: '' };
+const BLANK = { asset_tag: '', name: '', category_id: '', type_id: '', campus_id: '', building_name: '', room_name: '', status: 'operational', description: '' };
 const DIRECTORY_PAGE_SIZE = 9;
 
 /** Super Admin: add / edit / delete equipment in the directory. */
 export default function DirectoryManage() {
-  const { meta } = useMeta();
+  const { meta, reload: reloadMeta } = useMeta();
   const toast = useToast();
   const { query, setQuery, reset } = useListQuery({ q: '', category_id: '', campus_id: '', status: '', page: 1 });
   const [text, setText] = useSearchBox(query, setQuery);
@@ -38,12 +38,13 @@ export default function DirectoryManage() {
   const openForm = (e) => {
     setEditing(e || 'new'); setErrors({}); setFormError('');
     setForm(e ? { asset_tag: e.asset_tag, name: e.name, category_id: String(e.category_id), type_id: e.type_id ? String(e.type_id) : '',
-      campus_id: String(e.campus_id), building_id: String(e.building_id), room_id: String(e.room_id), status: e.status, description: e.description || '' } : BLANK);
+      campus_id: String(e.campus_id), building_name: e.building_name, room_name: e.room_name, status: e.status, description: e.description || '' } : BLANK);
   };
   const save = async () => {
     setBusy(true); setFormError('');
     try {
       if (editing === 'new') await api.post('/equipment', form); else await api.put(`/equipment/${editing.id}`, form);
+      await reloadMeta();
       toast.success('Equipment saved.'); setEditing(null); reload();
     } catch (e) {
       if (e instanceof ApiError && e.status === 422) setErrors(e.errors); else setFormError(e.message);

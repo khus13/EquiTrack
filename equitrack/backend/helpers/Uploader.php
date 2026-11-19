@@ -8,6 +8,59 @@
  */
 class Uploader
 {
+    public const MAX_REPORT_IMAGES = 5;
+
+    /**
+     * Save a multi-file form field, removing any earlier files if one upload fails.
+     * @return array{error:?string, files:array}
+     */
+    public static function saveImages(?array $files): array
+    {
+        if ($files === null) {
+            return ['error' => null, 'files' => []];
+        }
+
+        foreach (['name', 'type', 'tmp_name', 'error', 'size'] as $field) {
+            if (!array_key_exists($field, $files)) {
+                return ['error' => 'The selected photos could not be uploaded.', 'files' => []];
+            }
+            if (!is_array($files[$field])) {
+                $files[$field] = [$files[$field]];
+            }
+        }
+
+        $indexes = array_keys($files['name']);
+        if (count($indexes) > self::MAX_REPORT_IMAGES) {
+            return ['error' => 'Choose no more than ' . self::MAX_REPORT_IMAGES . ' photos.', 'files' => []];
+        }
+
+        $saved = [];
+        foreach ($indexes as $index) {
+            $file = [];
+            foreach (['name', 'type', 'tmp_name', 'error', 'size'] as $field) {
+                if (!array_key_exists($index, $files[$field])) {
+                    foreach ($saved as $image) self::delete($image['file_path']);
+                    return ['error' => 'The selected photos could not be uploaded.', 'files' => []];
+                }
+                $file[$field] = $files[$field][$index];
+                if (!is_scalar($file[$field])) {
+                    foreach ($saved as $image) self::delete($image['file_path']);
+                    return ['error' => 'The selected photos could not be uploaded.', 'files' => []];
+                }
+            }
+
+            $upload = self::saveImage($file);
+            if ($upload['error']) {
+                foreach ($saved as $image) self::delete($image['file_path']);
+                return ['error' => 'Photo ' . ((int) $index + 1) . ': ' . $upload['error'], 'files' => []];
+            }
+            if ($upload['file'] !== null) {
+                $saved[] = $upload['file'];
+            }
+        }
+        return ['error' => null, 'files' => $saved];
+    }
+
     /**
      * @return array{error:?string, file:?array}  error message OR saved file info
      */

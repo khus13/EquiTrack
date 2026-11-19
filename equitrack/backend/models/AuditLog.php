@@ -18,6 +18,20 @@ class AuditLog
         }
     }
 
+    public static function logNewLocations(int $userId, array $location, int $campusId, string $buildingName, string $roomName): void
+    {
+        if ($location['building_created']) {
+            self::log($userId, 'reference.create', 'buildings', $location['building_id'], [
+                'campus_id' => $campusId, 'name' => $buildingName,
+            ]);
+        }
+        if ($location['room_created']) {
+            self::log($userId, 'reference.create', 'rooms', $location['room_id'], [
+                'building_id' => $location['building_id'], 'name' => $roomName,
+            ]);
+        }
+    }
+
     public static function paginate(array $f, int $limit, int $offset): array
     {
         $where = []; $args = [];

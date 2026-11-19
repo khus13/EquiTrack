@@ -69,10 +69,6 @@ class UserController
         }
         if ($errors) Response::validation($errors);
 
-        if (AuthMiddleware::user()['role'] !== 'user') {
-            Response::error('Admin accounts cannot be deactivated or deleted here.', 403);
-        }
-
         // Nobody may deactivate their own account here.
         if ($id === (int) AuthMiddleware::user()['id'] && $in['status'] !== 'active') {
             Response::error('You cannot deactivate your own account.', 409);

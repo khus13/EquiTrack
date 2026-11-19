@@ -22,7 +22,7 @@ export default function ReportDetail() {
   const { pathname } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
-  const { meta } = useMeta();
+  const { meta, reload: reloadMeta } = useMeta();
   const toast = useToast();
   const isStaffView = pathname.startsWith('/admin');
   const canManage = hasRole(user, 'admin');
@@ -78,8 +78,8 @@ export default function ReportDetail() {
       item_name: r.item_name,
       category_id: String(r.category_id),
       campus_id: String(r.campus_id),
-      building_id: String(r.building_id),
-      room_id: String(r.room_id),
+      building_name: r.building_name,
+      room_name: r.room_name,
       location_note: r.location_note || '',
       damage_type_id: String(r.damage_type_id),
       description: r.description,
@@ -110,6 +110,7 @@ export default function ReportDetail() {
     setEditError('');
     try {
       const res = await api.withMessage.patch(`/reports/${id}`, editValues);
+      await reloadMeta();
       if (editPhoto) {
         const form = new FormData();
         form.append('photo', editPhoto);
@@ -235,7 +236,7 @@ export default function ReportDetail() {
         <div className="space-y-6 lg:col-span-2">
           <section className="card" aria-labelledby="desc-h">
             <h2 id="desc-h" className="mb-3 text-h3">Description</h2>
-            <p className="whitespace-pre-wrap text-neutral-200">{r.description}</p>
+            <p className="whitespace-pre-wrap text-neutral-200">{r.description || 'No description provided.'}</p>
             {r.images.length > 0 && !imgFailed ? (
               <div className="mt-5 flex flex-wrap gap-3">
                 {r.images.map((img) => (
@@ -294,7 +295,7 @@ export default function ReportDetail() {
             <Select label="Priority" required value={editValues.priority || ''} error={editErrors.priority}
               options={['Low', 'Medium', 'High', 'Urgent'].map((p) => ({ value: p, label: p }))} onChange={(e) => patchEdit({ priority: e.target.value })} />
           </div>
-          <Textarea label="Description" required maxLength={2000} value={editValues.description || ''} error={editErrors.description}
+          <Textarea label="Description" maxLength={2000} value={editValues.description || ''} error={editErrors.description}
             onChange={(e) => patchEdit({ description: e.target.value })} />
           <FileUpload file={editPhoto} onChange={(file) => { setEditPhoto(file); setEditErrors((errors) => ({ ...errors, photo: undefined })); }}
             error={editErrors.photo}

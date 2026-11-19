@@ -1,6 +1,7 @@
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { IconAlert, IconEye, IconEyeOff, IconImage, IconClose } from './Icons.jsx';
 import { imageProblem } from '../../lib/validators.js';
+import { MAX_REPORT_IMAGES } from '../../lib/constants.js';
 import SelectControl from './SelectControl.jsx';
 
 /**
@@ -32,6 +33,7 @@ export function Field({ label, error, hint, required, children, className = '' }
 }
 
 const cls = (error, extra = '') => `input ${error ? 'input-error' : ''} ${extra}`;
+const EMPTY_FILE_LIST = [];
 
 export function TextInput({ label, error, hint, required, className = '', ...rest }) {
   return (
@@ -137,6 +139,85 @@ export function FileUpload({ label = 'Upload photo', hint = 'JPG or PNG, max 2 M
         )}
         <input ref={inputRef} type="file" accept="image/jpeg,image/png" className="sr-only" tabIndex={-1} aria-labelledby={`${id}-label`}
                onChange={(e) => choose(e.target.files[0])} />
+      </div>
+      {!shownError && <p id={`${id}-hint`} className="field-hint">{hint}</p>}
+      {shownError && <p className="field-error" role="alert"><IconAlert className="h-4 w-4 shrink-0" />{shownError}</p>}
+    </div>
+  );
+}
+
+export function MultipleFileUpload({
+  label = 'Upload photos',
+  hint = `JPG or PNG, max 2 MB each. Up to ${MAX_REPORT_IMAGES} photos.`,
+  files = EMPTY_FILE_LIST,
+  onChange,
+  error,
+}) {
+  const inputRef = useRef(null);
+  const [drag, setDrag] = useState(false);
+  const [localError, setLocalError] = useState(null);
+  const [previews, setPreviews] = useState([]);
+  const id = useId();
+
+  useEffect(() => {
+    const next = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
+    setPreviews(next);
+    return () => next.forEach(({ url }) => URL.revokeObjectURL(url));
+  }, [files]);
+
+  const addFiles = (selectedFiles) => {
+    const incoming = Array.from(selectedFiles || []);
+    if (!incoming.length) return;
+    if (files.length + incoming.length > MAX_REPORT_IMAGES) {
+      setLocalError(`Choose no more than ${MAX_REPORT_IMAGES} photos.`);
+      return;
+    }
+    const invalidFile = incoming.find(imageProblem);
+    if (invalidFile) {
+      setLocalError(`${invalidFile.name}: ${imageProblem(invalidFile)}`);
+      return;
+    }
+
+    setLocalError(null);
+    onChange?.([...files, ...incoming]);
+  };
+  const removeFile = (index) => {
+    onChange?.(files.filter((_, fileIndex) => fileIndex !== index));
+    setLocalError(null);
+  };
+  const shownError = localError || error;
+
+  return (
+    <div>
+      <span className="label" id={`${id}-label`}>{label}</span>
+      <div
+        onDragOver={(event) => { event.preventDefault(); setDrag(true); }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={(event) => { event.preventDefault(); setDrag(false); addFiles(event.dataTransfer.files); }}
+        className={`rounded-3xl border-2 border-dashed p-4 transition ${drag ? 'border-accent bg-accent/10' : shownError ? 'border-danger-light' : 'border-surface-line bg-surface-sunken'}`}
+      >
+        {previews.length > 0 && (
+          <ul className="mb-4 grid gap-3 sm:grid-cols-2" aria-label="Selected photos">
+            {previews.map(({ file, url }, index) => (
+              <li key={`${file.name}-${file.lastModified}-${index}`} className="flex min-w-0 items-center gap-3 rounded-2xl bg-surface-raised p-3">
+                <img src={url} alt={`Preview of ${file.name}`} className="h-16 w-16 shrink-0 rounded-xl object-cover" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-small font-medium text-white">{file.name}</p>
+                  <p className="text-tiny text-muted">{(file.size / 1024).toFixed(0)} KB</p>
+                </div>
+                <button type="button" onClick={() => removeFile(index)} className="rounded-full p-2 text-muted hover:bg-white/10 hover:text-white" aria-label={`Remove ${file.name}`}>
+                  <IconClose className="h-4 w-4" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-small text-neutral-200">Drag photos here or choose files ({files.length}/{MAX_REPORT_IMAGES})</p>
+          <button type="button" onClick={() => inputRef.current?.click()} className="btn btn-primary btn-sm">Choose photos</button>
+        </div>
+        <input ref={inputRef} type="file" accept="image/jpeg,image/png" multiple className="sr-only" tabIndex={-1}
+          aria-labelledby={`${id}-label`} onChange={(event) => { addFiles(event.target.files); event.target.value = ''; }} />
       </div>
       {!shownError && <p id={`${id}-hint`} className="field-hint">{hint}</p>}
       {shownError && <p className="field-error" role="alert"><IconAlert className="h-4 w-4 shrink-0" />{shownError}</p>}
