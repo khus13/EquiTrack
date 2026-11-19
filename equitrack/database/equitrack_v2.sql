@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Nov 19, 2026 at 03:36 AM
+-- Host: 127.0.0.1
+-- Generation Time: Nov 19, 2026 at 05:26 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `equitrack_v2`
+-- Database: `equitrack`
 --
 
 -- --------------------------------------------------------
@@ -82,15 +82,40 @@ CREATE TABLE `buildings` (
 --
 
 INSERT INTO `buildings` (`id`, `campus_id`, `name`, `code`) VALUES
-(1, 1, 'Lawrence Bunzel Bldg.', 'LB'),
-(2, 1, 'SMED Bldg.', 'SMED'),
-(3, 1, 'Philip Van Engelen Bldg.', 'PVE'),
-(4, 1, 'SAFAD Bldg.', 'SAFAD'),
+(1, 1, 'Lawrence Bunzel Building', 'LB'),
+(2, 1, 'SMED Building', 'SMED'),
+(3, 1, 'Philip Van Engelen Buildin', 'PE'),
+(4, 1, 'SAFAD Building', 'SAFAD'),
 (5, 1, 'Robert Hoeppener Bldg.', 'RH'),
-(6, 1, 'JB Bldg. (LRC)', 'JB'),
-(7, 1, 'MR Bldg.', 'MR'),
-(8, 1, 'BCT', 'BCT'),
-(9, 1, 'Chapel', 'CH');
+(6, 1, 'JB Learning Resource Center', 'JBLRC'),
+(7, 1, 'Michael Richartz Center', 'MR'),
+(8, 1, 'Basketball Covered Court ', 'BCT'),
+(9, 1, 'Chapel', 'CH'),
+(12, 1, 'Edgar Oehler', 'EO'),
+(13, 1, 'Franz Oster', 'FO'),
+(14, 1, 'Enrique Shoenig', 'ES'),
+(15, 1, 'Soccer Field', 'SF'),
+(16, 1, 'University Dormitory', 'UD'),
+(17, 1, 'Sports Complex', 'SC'),
+(18, 1, 'Calibration Building', 'CB'),
+(19, 1, 'Registar', 'REG'),
+(20, 1, 'USC Portal', 'UP'),
+(21, 1, 'Machine Shop', 'MS'),
+(22, 1, 'Alumni & Visitors Center', 'AVC'),
+(23, 1, 'Retreat House', 'RTH'),
+(24, 1, 'Population Studies Office', 'PSO'),
+(25, 1, 'COCOFED', 'COCOFED'),
+(26, 2, 'Arthur Dingman Building', 'AD'),
+(27, 2, 'Joseph Watzlawik Wing', 'JW'),
+(28, 2, 'Arch. Gabriel Reyes Wing', 'AGR'),
+(29, 2, 'Ernest Hoerdemann Building', 'EH'),
+(30, 2, 'Anselmo Bustos Sports Complex', 'AB'),
+(31, 2, 'Main Library', 'ML'),
+(32, 2, 'Wrocklage Yard', 'WY'),
+(33, 2, 'Swimming Pool', 'SP'),
+(34, 2, 'Tennis Court', 'TC'),
+(35, 2, 'Volleyball Court', 'VB'),
+(36, 2, 'Kolk\'s Nook', 'KN');
 
 -- --------------------------------------------------------
 
@@ -395,13 +420,15 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `role_id`, `first_name`, `last_name`, `email`, `password_hash`, `status`, `created_at`, `updated_at`) VALUES
 (1, 3, 'Super', 'Admin', 'superadmin@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-17 03:32:59'),
-(2, 2, 'Admin', 'EquiTrack', 'admin@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-17 03:32:59'),
+(2, 2, 'Admin 1', 'EquiTrack', 'admin1@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-19 04:07:23'),
 (3, 1, 'Juan', 'Dela Cruz', 'juan@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-17 03:32:59'),
-(4, 1, 'Alex', 'Demo', 'alex.demo@example.test', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-17 03:32:59'),
-(5, 1, 'Sam', 'Demo', 'sam.demo@example.test', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-17 03:32:59'),
-(6, 1, 'Riley', 'Demo', 'riley.demo@example.test', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-17 03:32:59'),
-(7, 1, 'Casey', 'Demo', 'casey.demo@example.test', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-19 02:29:00'),
-(8, 1, 'Jordan', 'Demo', 'jordan.demo@example.test', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-17 04:21:19');
+(4, 1, 'Alex', 'Tan', 'alex.tan@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-19 04:08:14'),
+(5, 1, 'Sam', 'Garcia', 'sam.garcia@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-19 04:09:31'),
+(6, 1, 'Riley', 'Villanueva', '21001106@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-19 04:09:56'),
+(7, 1, 'Casey', 'Casas', '08217704@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-19 04:10:26'),
+(8, 1, 'Jordan', 'Peele', 'jordan.peele@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-17 03:32:59', '2026-11-19 04:10:46'),
+(9, 2, 'Admin 2', 'EquiTrack', 'admin2@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-19 04:13:10', '2026-11-19 04:13:10'),
+(10, 2, 'Admin 3', 'EquiTrack', 'admin3@usc.edu.ph', '$2y$10$1LFwndl5iDbDGBkdYgoz2eGvhiedRoxhjnWiV6YlehWSSSYkgYVWW', 'active', '2026-11-19 04:13:10', '2026-11-19 04:13:10');
 
 --
 -- Indexes for dumped tables
@@ -538,7 +565,7 @@ ALTER TABLE `audit_logs`
 -- AUTO_INCREMENT for table `buildings`
 --
 ALTER TABLE `buildings`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `campuses`
@@ -604,7 +631,7 @@ ALTER TABLE `rooms`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
